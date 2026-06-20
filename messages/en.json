@@ -1,0 +1,77 @@
+{
+  "homepage": {
+    "title": "Bshop Electrical and Household Appliances",
+    "subtitle": "Wholesale & Retail home appliances — the best quality",
+    "retail": "Personal Shopping",
+    "retail_desc": "Products at retail prices for individual buyers",
+    "wholesale": "Wholesale",
+    "wholesale_desc": "Special prices for cafés, restaurants, hotels and more",
+    "browse_catalog": "Browse Catalog",
+    "featured_products": "Featured Products"
+  },
+  "nav": {
+    "home": "Home",
+    "retail": "Retail",
+    "wholesale": "Wholesale",
+    "contact": "Contact"
+  },
+  "retail": {
+    "title": "Retail Store",
+    "all_products": "All Products",
+    "filter_brand": "Brand",
+    "filter_category": "Category",
+    "filter_price": "Price",
+    "search_placeholder": "Search...",
+    "add_to_basket": "Add to Basket",
+    "in_stock": "In Stock",
+    "out_of_stock": "Out of Stock"
+  },
+  "wholesale": {
+    "title": "Wholesale",
+    "subtitle": "Special prices for businesses",
+    "choose_business": "Choose your business type",
+    "cafe": "Café",
+    "restaurant": "Restaurant",
+    "gym": "Gym",
+    "hotel": "Hotel",
+    "office": "Office",
+    "min_order": "Min. order",
+    "unit": "units",
+    "savings": "You save"
+  },
+  "basket": {
+    "title": "Basket",
+    "empty": "Your basket is empty",
+    "total": "Total",
+    "checkout": "Place Order",
+    "remove": "Remove",
+    "quantity": "Qty"
+  },
+  "order": {
+    "title": "Place Your Order",
+    "name": "Full Name",
+    "phone": "Phone Number",
+    "address": "Address",
+    "business_name": "Business Name",
+    "notes": "Notes",
+    "submit": "Submit Order",
+    "success": "Your order has been submitted. We will contact you soon.",
+    "error": "Error submitting order. Please try again."
+  },
+  "footer": {
+    "contact": "Contact Us",
+    "phone": "Phone",
+    "address": "Address",
+    "rights": "All rights reserved"
+  },
+  "categories": {
+    "kitchen": "Kitchen Appliances",
+    "laundry": "Laundry",
+    "cooling": "Cooling & Refrigeration",
+    "heating": "Heating",
+    "air": "Air Treatment",
+    "cleaning": "Cleaning",
+    "small": "Small Appliances",
+    "accessories": "Accessories"
+  }
+}

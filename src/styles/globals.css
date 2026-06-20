@@ -1,0 +1,73 @@
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --navy: #1a3a5c;
+    --gold: #d4a017;
+    --cream: #f9f6f0;
+  }
+
+  html[lang='fa'] {
+    font-family: 'Vazirmatn', sans-serif;
+    direction: rtl;
+  }
+
+  html[lang='en'] {
+    font-family: 'Inter', sans-serif;
+    direction: ltr;
+  }
+
+  body {
+    @apply bg-cream text-navy-800;
+  }
+}
+
+@keyframes ticker-ltr {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes ticker-rtl {
+  0%   { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+
+.ticker-track {
+  display: flex;
+  align-items: center;
+  gap: 5rem;
+  padding: 0 2.5rem;
+  width: max-content;
+  direction: ltr;
+  animation: ticker-ltr 28s linear infinite;
+}
+
+html[lang='fa'] .ticker-track {
+  animation-name: ticker-rtl;
+}
+
+.ticker-track:hover {
+  animation-play-state: paused;
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-navy-700 text-white px-6 py-3 rounded-lg font-medium hover:bg-navy-800 transition-colors;
+  }
+
+  .btn-gold {
+    @apply bg-gold-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-gold-600 transition-colors;
+  }
+
+  .card {
+    @apply bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden;
+  }
+
+  .section-title {
+    @apply text-2xl font-bold text-navy-700 mb-6;
+  }
+}

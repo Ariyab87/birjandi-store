@@ -1,0 +1,8 @@
+node_modules/
+.next/
+.env.local
+*.mp4
+"3d motion"/
+"warehouse and delivery"/
+logo/
+.DS_Store
