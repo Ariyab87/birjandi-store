@@ -35,7 +35,7 @@ export default function WarehouseDeliverySection({ locale }: { locale: string })
 
         {/* Row 1 — Warehouse: video left, text right */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
-          {videoBlock('/warehouse.mp4', 'Warehouse')}
+          {videoBlock('https://res.cloudinary.com/doi5encow/video/upload/v1781980087/bshop-videos/warehouse.mp4', 'Warehouse')}
           {textBlock(
             fa ? 'انبار ما' : 'OUR WAREHOUSE',
             fa ? 'آماده برای هر سفارشی' : 'Stocked and ready for any order',
@@ -57,7 +57,7 @@ export default function WarehouseDeliverySection({ locale }: { locale: string })
             )}
           </div>
           <div className="order-1 md:order-2">
-            {videoBlock('/delivery.mp4', 'Delivery')}
+            {videoBlock('https://res.cloudinary.com/doi5encow/video/upload/v1781980097/bshop-videos/delivery.mp4', 'Delivery')}
           </div>
         </div>
 

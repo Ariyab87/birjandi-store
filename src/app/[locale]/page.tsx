@@ -39,7 +39,7 @@ export default async function HomePage({
       <section className="relative min-h-screen flex items-center overflow-hidden border-b border-gray-100" style={{ marginTop: '-64px' }}>
         {/* Video fills background, scroll-controlled */}
         <div className="absolute inset-0 z-0">
-          <ScrollVideo src="/hero-3d.mp4" />
+          <ScrollVideo src="https://res.cloudinary.com/doi5encow/video/upload/v1781980055/bshop-videos/hero-3d.mp4" />
           {/* Dark overlay so text is always readable */}
           <div className="absolute inset-0 bg-black/40" />
         </div>
