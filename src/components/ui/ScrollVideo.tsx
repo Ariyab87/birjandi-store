@@ -32,6 +32,8 @@ export default function ScrollVideo({ src }: { src: string }) {
         ref={videoRef}
         src={src}
         muted
+        autoPlay
+        loop
         playsInline
         preload="auto"
         className="w-full h-full object-cover"
