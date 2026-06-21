@@ -50,24 +50,9 @@ function StatItem({ stat, locale }: { stat: Stat; locale: string }) {
 
 export default function AnimatedStats({ locale }: { locale: string }) {
   const items = [...STATS, ...STATS];
-  const sectionRef = useRef<HTMLElement>(null);
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
-      { threshold: 0.1 }
-    );
-    if (sectionRef.current) observer.observe(sectionRef.current);
-    return () => observer.disconnect();
-  }, []);
 
   return (
-    <section
-      ref={sectionRef}
-      className="bg-white border-y border-gray-100 py-10 overflow-hidden transition-all duration-700"
-      style={{ opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(24px)' }}
-    >
+    <section className="bg-white border-y border-gray-100 py-10 overflow-hidden">
       <div className="ticker-track">
         {items.map((s, i) => (
           <StatItem key={i} stat={s} locale={locale} />
