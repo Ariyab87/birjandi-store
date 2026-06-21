@@ -52,11 +52,13 @@ export default function AnimatedStats({ locale }: { locale: string }) {
   const items = [...STATS, ...STATS];
 
   return (
-    <section className="bg-white border-y border-gray-100 py-10 overflow-hidden">
-      <div className="ticker-track">
-        {items.map((s, i) => (
-          <StatItem key={i} stat={s} locale={locale} />
-        ))}
+    <section className="bg-white border-y border-gray-100 py-10">
+      <div className="ticker-wrap">
+        <div className="ticker-track">
+          {items.map((s, i) => (
+            <StatItem key={i} stat={s} locale={locale} />
+          ))}
+        </div>
       </div>
     </section>
   );
