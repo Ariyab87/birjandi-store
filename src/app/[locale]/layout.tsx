@@ -26,6 +26,7 @@ export default async function LocaleLayout({
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="google-site-verification" content="blj87sz43KjDOYwluPkJB0ilg9BjADEJzfU__gw7f9M" />
         <title>کالالند — لوازم برقی و خانگی</title>
       </head>
       <body className={`min-h-screen flex flex-col ${locale === 'fa' ? 'font-vazir' : 'font-inter'}`}>
