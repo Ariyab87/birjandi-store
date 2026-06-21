@@ -46,9 +46,6 @@
   animation: ticker-ltr 28s linear infinite;
 }
 
-html[lang='fa'] .ticker-track {
-  animation-name: ticker-rtl;
-}
 
 
 @layer components {
