@@ -46,7 +46,7 @@ export default function Header() {
           {/* Logo */}
           <Link href={`/${locale}`} className="flex items-center gap-2.5 group">
             <div className="rounded-full ring-1 ring-gold-500/40 group-hover:ring-gold-500 transition-all overflow-hidden shrink-0" style={{ width: 32, height: 32 }}>
-              <Image src="/logo.png" alt="Bshop" width={32} height={32} className="w-full h-full object-cover" />
+              <Image src="/logo.png" alt="کالالند" width={32} height={32} className="w-full h-full object-cover" />
             </div>
           </Link>
 

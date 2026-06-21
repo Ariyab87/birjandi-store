@@ -6,3 +6,4 @@ node_modules/
 "warehouse and delivery"/
 logo/
 .DS_Store
+.vercel

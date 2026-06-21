@@ -11,7 +11,7 @@ export default async function ContactPage({ params: { locale } }: { params: { lo
           {fa ? 'ارتباط با ما' : 'Get in touch'}
         </span>
         <h1 className="text-4xl font-bold text-navy-700 mt-2 mb-3">
-          {fa ? 'تماس با بی‌شاپ' : 'Contact Bshop'}
+          {fa ? 'تماس با کالالند' : 'Contact Kalaland'}
         </h1>
         <p className="text-gray-500">
           {fa

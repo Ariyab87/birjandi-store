@@ -14,7 +14,7 @@ export default function AdminChatPanel() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: 'سلام! به پنل مدیریت بی‌شاپ خوش آمدید.\n\nمی‌توانم:\n• قیمت محصولات را جستجو کنم\n• قیمت را با درصد یا مقدار ثابت تغییر دهم\n• تاریخچه تغییرات قیمت را نشان دهم\n\nمثال: "قیمت ماشین لباسشویی را ۵٪ افزایش بده"',
+      content: 'سلام! به پنل مدیریت کالالند خوش آمدید.\n\nمی‌توانم:\n• قیمت محصولات را جستجو کنم\n• قیمت را با درصد یا مقدار ثابت تغییر دهم\n• تاریخچه تغییرات قیمت را نشان دهم\n\nمثال: "قیمت ماشین لباسشویی را ۵٪ افزایش بده"',
     },
   ]);
   const [input, setInput] = useState('');
@@ -78,7 +78,7 @@ export default function AdminChatPanel() {
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 rounded-xl bg-gold-500 flex items-center justify-center font-bold text-white text-lg">B</div>
             <div>
-              <p className="text-white font-bold">Bshop Admin</p>
+              <p className="text-white font-bold">کالالند Admin</p>
               <p className="text-gray-400 text-xs">پنل مدیریت داخلی</p>
             </div>
           </div>
@@ -114,7 +114,7 @@ export default function AdminChatPanel() {
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-gold-500 flex items-center justify-center font-bold text-white">B</div>
           <div>
-            <p className="text-white font-bold text-sm">Bshop — دستیار مدیریت قیمت</p>
+            <p className="text-white font-bold text-sm">کالالند — دستیار مدیریت قیمت</p>
             <p className="text-gray-400 text-xs flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block" />
               متصل به Strapi

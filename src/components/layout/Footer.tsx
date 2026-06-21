@@ -7,9 +7,9 @@ export default function Footer() {
     <footer className="bg-navy-800 text-white mt-auto">
       <div className="max-w-7xl mx-auto px-10 py-6 grid grid-cols-1 md:grid-cols-3 gap-8">
         <div>
-          <h3 className="text-gold-400 font-bold text-lg mb-3">Bshop</h3>
+          <h3 className="text-gold-400 font-bold text-lg mb-3">کالالند</h3>
           <p className="text-gray-300 text-sm leading-relaxed">
-            لوازم برقی و خانگی بی‌شاپ — فروش خرده و عمده با بهترین قیمت
+            لوازم برقی و خانگی کالالند — فروش خرده و عمده با بهترین قیمت
           </p>
         </div>
         <div>
@@ -45,7 +45,7 @@ export default function Footer() {
         </div>
       </div>
       <div className="border-t border-white/10 text-center py-4 text-xs text-gray-400">
-        © {new Date().getFullYear()} Bshop — {t('rights')}
+        © {new Date().getFullYear()} کالالند — {t('rights')}
       </div>
     </footer>
   );

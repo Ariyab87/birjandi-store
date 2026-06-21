@@ -49,7 +49,7 @@ export default async function HomePage({
             {fa ? 'بیش از ۳۰ سال اعتماد' : 'Over 30 years of trust'}
           </span>
           <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold text-white mb-4 leading-tight drop-shadow-lg">
-            {fa ? 'لوازم برقی و خانگی بی‌شاپ' : <>Bshop<br className="hidden sm:block" /> Electrical &amp; Household</>}
+            {fa ? <>لوازم برقی و خانگی کالالند<sup className="text-2xl sm:text-3xl font-normal align-super">۲۴</sup></> : <>Kalaland<sup className="text-2xl sm:text-3xl font-normal align-super">24</sup><br className="hidden sm:block" /> Electrical &amp; Household</>}
           </h1>
           <p className="text-lg text-white mb-12 max-w-xl mx-auto" style={{ textShadow: '0 2px 12px rgba(0,0,0,0.8), 0 1px 4px rgba(0,0,0,0.9)' }}>
             {fa
@@ -104,8 +104,8 @@ export default async function HomePage({
             </h2>
             <p className="text-gray-600 leading-relaxed mb-4">
               {fa
-                ? 'مجموعه بی‌شاپ از سال ۱۳۷۴ فعالیت خود را آغاز کرده و با بیش از سه دهه حضور در بازار ایران، به یکی از معتبرترین عرضه‌کنندگان لوازم خانگی تبدیل شده است.'
-                : 'Bshop has been active since 1995 and over three decades has become one of Iran\'s most trusted home appliance suppliers.'}
+                ? 'مجموعه کالالند از سال ۱۳۷۴ فعالیت خود را آغاز کرده و با بیش از سه دهه حضور در بازار ایران، به یکی از معتبرترین عرضه‌کنندگان لوازم خانگی تبدیل شده است.'
+                : 'Kalaland has been active since 1995 and over three decades has become one of Iran\'s most trusted home appliance suppliers.'}
             </p>
             <p className="text-gray-600 leading-relaxed mb-4">
               {fa

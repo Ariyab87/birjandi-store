@@ -26,7 +26,7 @@ export default async function LocaleLayout({
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>Bshop — Electrical and Household Appliances</title>
+        <title>کالالند — لوازم برقی و خانگی</title>
       </head>
       <body className={`min-h-screen flex flex-col ${locale === 'fa' ? 'font-vazir' : 'font-inter'}`}>
         <NextIntlClientProvider messages={messages}>

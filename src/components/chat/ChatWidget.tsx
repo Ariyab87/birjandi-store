@@ -20,8 +20,8 @@ export default function ChatWidget({ locale }: { locale: string }) {
       setMessages([{
         role: 'assistant',
         content: fa
-          ? 'سلام! 👋 به بی‌شاپ خوش آمدید. چطور می‌توانم کمکتان کنم؟'
-          : 'Hi there! 👋 Welcome to Bshop. How can I help you today?',
+          ? 'سلام! 👋 به کالالند خوش آمدید. چطور می‌توانم کمکتان کنم؟'
+          : 'Hi there! 👋 Welcome to Kalaland. How can I help you today?',
       }]);
     }
   }, [open]);
@@ -89,7 +89,7 @@ export default function ChatWidget({ locale }: { locale: string }) {
               B
             </div>
             <div>
-              <p className="text-white font-semibold text-sm">Bshop</p>
+              <p className="text-white font-semibold text-sm">کالالند</p>
               <p className="text-white/60 text-xs">{fa ? 'پشتیبانی آنلاین' : 'Online Support'}</p>
             </div>
             <span className="ml-auto flex items-center gap-1">

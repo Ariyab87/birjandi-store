@@ -43,8 +43,8 @@ export async function sendOrderEmails(order: OrderData) {
 
   const ownerSubject =
     order.type === 'retail'
-      ? `🛒 New Retail Order — Bshop #${order.orderId}`
-      : `🏢 New Wholesale Order — Bshop #${order.orderId}`;
+      ? `🛒 New Retail Order — Kalaland #${order.orderId}`
+      : `🏢 New Wholesale Order — Kalaland #${order.orderId}`;
 
   const ownerBody = `
     <div style="font-family:sans-serif;max-width:600px;margin:0 auto">
@@ -77,18 +77,18 @@ export async function sendOrderEmails(order: OrderData) {
 
   const customerBody = `
     <div style="font-family:sans-serif;max-width:600px;margin:0 auto">
-      <h2 style="color:#1a3a5c">✅ Order Confirmed — Bshop Appliances</h2>
+      <h2 style="color:#1a3a5c">✅ Order Confirmed — Kalaland Appliances</h2>
       <p>Dear ${order.customer.name},</p>
       <p>Thank you for your order! We have received your request and will contact you shortly to confirm and arrange payment/delivery.</p>
       <p><strong>Order #:</strong> ${order.orderId}</p>
       <p><strong>Total:</strong> ${order.total.toLocaleString()} IRR</p>
       <p>If you have any questions, please call us directly.</p>
       <br/>
-      <p style="color:#888;font-size:0.9em">Bshop Household Appliances</p>
+      <p style="color:#888;font-size:0.9em">Kalaland Household Appliances</p>
     </div>
   `;
 
-  const fromSender = process.env.EMAIL_FROM || 'Bshop Orders <onboarding@resend.dev>';
+  const fromSender = process.env.EMAIL_FROM || 'Kalaland Orders <onboarding@resend.dev>';
 
   await Promise.all([
     resend.emails.send({
@@ -102,7 +102,7 @@ export async function sendOrderEmails(order: OrderData) {
           resend.emails.send({
             from: fromSender,
             to: order.customer.email,
-            subject: `Order Confirmed — Bshop #${order.orderId}`,
+            subject: `Order Confirmed — Kalaland #${order.orderId}`,
             html: customerBody,
           }),
         ]
