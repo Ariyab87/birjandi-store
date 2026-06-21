@@ -6,16 +6,19 @@ interface Stat {
   label: { fa: string; en: string };
   numeric: number;
   suffix: string;
+  display?: { fa: string; en: string }; // overrides numeric display when set
 }
 
 const STATS: Stat[] = [
-  { label: { fa: 'سال تجربه',        en: 'Years of experience' }, numeric: 30,    suffix: '+' },
-  { label: { fa: 'برند معتبر',        en: 'Trusted brands' },      numeric: 500,   suffix: '+' },
-  { label: { fa: 'استان ایران',       en: 'Iranian provinces' },   numeric: 31,    suffix: ''  },
-  { label: { fa: 'مشتری راضی',        en: 'Happy customers' },     numeric: 10000, suffix: '+' },
-  { label: { fa: 'محصول فروخته‌شده', en: 'Products sold' },       numeric: 5000,  suffix: '+' },
-  { label: { fa: 'نمایندگی فعال',     en: 'Active branches' },     numeric: 20,    suffix: '+' },
-  { label: { fa: 'پشتیبانی',          en: 'Support' },             numeric: 0,     suffix: '24/7' },
+  { label: { fa: 'سال تجربه',             en: 'Years of Experience' },         numeric: 30,    suffix: '+' },
+  { label: { fa: 'رضایت مشتریان',         en: 'Customer Satisfaction' },       numeric: 98,    suffix: '%' },
+  { label: { fa: 'برند معتبر',             en: 'Trusted Brands' },             numeric: 500,   suffix: '+' },
+  { label: { fa: 'مشتری راضی',            en: 'Happy Customers' },             numeric: 10000, suffix: '+' },
+  { label: { fa: 'قطعات اورجینال',        en: 'Original Parts' },             numeric: 100,   suffix: '%' },
+  { label: { fa: 'تجهیز مراکز تجاری',    en: 'Business Centers Equipped' },  numeric: 0, suffix: '', display: { fa: '✓', en: '✓' } },
+  { label: { fa: 'ارسال سراسر کشور',      en: 'Nationwide Delivery' },        numeric: 0, suffix: '', display: { fa: '✓', en: '✓' } },
+  { label: { fa: 'دارای مجوز رسمی',       en: 'Officially Licensed' },        numeric: 0, suffix: '', display: { fa: '✓', en: '✓' } },
+  { label: { fa: 'پشتیبانی',              en: 'Support' },                    numeric: 0, suffix: '24/7' },
 ];
 
 function toFarsi(n: number): string {
@@ -24,11 +27,12 @@ function toFarsi(n: number): string {
 
 function StatItem({ stat, locale }: { stat: Stat; locale: string }) {
   const fa = locale === 'fa';
-  const display =
-    stat.suffix === '24/7'
+  const display = stat.display
+    ? (fa ? stat.display.fa : stat.display.en)
+    : stat.suffix === '24/7'
       ? '24/7'
       : fa
-      ? toFarsi(stat.numeric) + (stat.suffix === '+' ? '+' : '')
+      ? toFarsi(stat.numeric) + (stat.suffix === '%' ? '٪' : stat.suffix === '+' ? '+' : '')
       : (stat.numeric >= 1000 ? stat.numeric.toLocaleString('en-US') : stat.numeric) + stat.suffix;
 
   return (
