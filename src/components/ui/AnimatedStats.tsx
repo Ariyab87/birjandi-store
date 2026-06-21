@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect, useRef, useState } from 'react';
+
 interface Stat {
   label: { fa: string; en: string };
   numeric: number;
@@ -43,12 +45,25 @@ function StatItem({ stat, locale }: { stat: Stat; locale: string }) {
 }
 
 export default function AnimatedStats({ locale }: { locale: string }) {
-  // Render two identical copies; CSS animates the first copy from 0 → -50%
-  // which is exactly one full set width — creating a perfect seamless loop.
   const items = [...STATS, ...STATS];
+  const sectionRef = useRef<HTMLElement>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
+      { threshold: 0.1 }
+    );
+    if (sectionRef.current) observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    <section className="bg-white border-y border-gray-100 py-10 overflow-hidden">
+    <section
+      ref={sectionRef}
+      className="bg-white border-y border-gray-100 py-10 overflow-hidden transition-all duration-700"
+      style={{ opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(24px)' }}
+    >
       <div className="ticker-track">
         {items.map((s, i) => (
           <StatItem key={i} stat={s} locale={locale} />

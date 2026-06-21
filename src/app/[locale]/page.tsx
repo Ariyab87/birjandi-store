@@ -49,7 +49,13 @@ export default async function HomePage({
             {fa ? 'بیش از ۳۰ سال اعتماد' : 'Over 30 years of trust'}
           </span>
           <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold text-white mb-4 leading-tight drop-shadow-lg">
-            {fa ? <>لوازم برقی و خانگی کالالند<sup className="text-2xl sm:text-3xl font-normal align-super">۲۴</sup></> : <>Kalaland<sup className="text-2xl sm:text-3xl font-normal align-super">24</sup><br className="hidden sm:block" /> Electrical &amp; Household</>}
+            {fa
+              ? <span className="inline-flex items-start gap-1 flex-row-reverse justify-center w-full">
+                  <span>لوازم برقی و خانگی کالالند</span>
+                  <span className="text-xl sm:text-2xl font-normal leading-none mt-1">۲۴</span>
+                </span>
+              : <>Kalaland<span className="text-2xl sm:text-3xl font-normal align-super">24</span><br className="hidden sm:block" /> Electrical &amp; Household</>
+            }
           </h1>
           <p className="text-lg text-white mb-12 max-w-xl mx-auto" style={{ textShadow: '0 2px 12px rgba(0,0,0,0.8), 0 1px 4px rgba(0,0,0,0.9)' }}>
             {fa
