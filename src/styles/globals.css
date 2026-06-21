@@ -50,9 +50,6 @@ html[lang='fa'] .ticker-track {
   animation-name: ticker-rtl;
 }
 
-.ticker-track:hover {
-  animation-play-state: paused;
-}
 
 @layer components {
   .btn-primary {
