@@ -16,7 +16,7 @@ export interface PriceChangeLogEntry {
 }
 
 // In-memory log — survives restarts only in dev; extend to DB for production
-export const bulkPriceLog: PriceChangeLogEntry[] = [];
+const bulkPriceLog: PriceChangeLogEntry[] = [];
 
 async function fetchProducts(category: string) {
   const params = new URLSearchParams({ 'pagination[limit]': '500' });
