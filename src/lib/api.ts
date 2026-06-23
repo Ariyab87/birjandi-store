@@ -24,6 +24,7 @@ export interface Product {
   description_en: string | null;
   stock_status: 'in_stock' | 'out_of_stock';
   featured: boolean;
+  price_on_request: boolean;
   images: Array<{
     id: number;
     url: string;

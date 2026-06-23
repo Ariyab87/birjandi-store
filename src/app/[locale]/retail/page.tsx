@@ -29,6 +29,8 @@ export default async function RetailPage({
     const [min, max] = searchParams.price.split('-');
     if (min) filters['filters[retail_price][$gte]'] = min;
     if (max) filters['filters[retail_price][$lte]'] = max;
+    // exclude price-on-request products from price filter results
+    filters['filters[price_on_request][$eq]'] = 'false';
   }
 
   let products = { data: [] as Awaited<ReturnType<typeof getProducts>>['data'] };

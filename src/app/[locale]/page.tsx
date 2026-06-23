@@ -107,8 +107,8 @@ export default async function HomePage({
             </h2>
             <p className="text-gray-600 leading-relaxed mb-4">
               {fa
-                ? 'مجموعه کالالند از سال ۱۳۷۴ فعالیت خود را آغاز کرده و با بیش از سه دهه حضور در بازار ایران، به یکی از معتبرترین عرضه‌کنندگان لوازم خانگی تبدیل شده است.'
-                : 'Kalaland has been active since 1995 and over three decades has become one of Iran\'s most trusted home appliance suppliers.'}
+                ? 'کالالند با دهه‌ها تجربه در حوزه لوازم خانگی، یکی از معتبرترین و شناخته‌شده‌ترین عرضه‌کنندگان این صنعت در بازار است.'
+                : 'With decades of expertise in home appliances, Kalaland has built a reputation as one of the most trusted names in the industry.'}
             </p>
             <p className="text-gray-600 leading-relaxed mb-4">
               {fa

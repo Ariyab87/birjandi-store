@@ -23,7 +23,8 @@ IMPORTANT: This assistant is only accessible to authenticated admin users. Never
 ## What you can do
 - Look up a product's current price by name
 - Calculate a new price based on percent or fixed-amount change
-- Update a product's price after explicit confirmation
+- Update a single product's price after explicit confirmation
+- Apply bulk percentage price changes to an entire category (e.g. "increase all kitchen products by 5%")
 - Show recent price-change history
 
 ## Rules you MUST follow
@@ -92,6 +93,22 @@ const tools: Groq.Chat.ChatCompletionTool[] = [
       name: 'get_all_products',
       description: 'Get a list of all products with their current prices.',
       parameters: { type: 'object', properties: {} },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'bulk_update_category_prices',
+      description: 'Preview or apply a percentage price change to all products in a category. Always preview first, then ask for confirmation before applying.',
+      parameters: {
+        type: 'object',
+        properties: {
+          action: { type: 'string', enum: ['preview', 'apply'], description: 'preview = show what would change, apply = actually update (only after confirmation)' },
+          category: { type: 'string', description: 'Category key: kitchen, laundry, cooling, heating, air, cleaning, small, accessories, or "all" for all categories' },
+          percentage: { type: 'number', description: 'Percentage to change prices by. Positive = increase, negative = decrease. E.g. 5 for +5%, -3 for -3%' },
+        },
+        required: ['action', 'category', 'percentage'],
+      },
     },
   },
 ];
@@ -187,6 +204,20 @@ async function update_product_price(params: {
   return { success: true, updated: updateBody.data, productName: current?.name_fa || current?.name_en };
 }
 
+async function bulk_update_category_prices(params: { action: 'preview' | 'apply'; category: string; percentage: number }) {
+  const res = await fetch(`${STRAPI_URL.replace('1337', '3000')}/api/admin/bulk-price`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      password: ADMIN_PASSWORD,
+      action: params.action,
+      category: params.category,
+      percentage: params.percentage,
+    }),
+  });
+  return res.json();
+}
+
 function get_price_history(product_name?: string) {
   let log = priceChangeLog;
   if (product_name) {
@@ -244,6 +275,8 @@ export async function POST(req: NextRequest) {
           result = await update_product_price(args);
         } else if (toolCall.function.name === 'get_price_history') {
           result = get_price_history(args.product_name);
+        } else if (toolCall.function.name === 'bulk_update_category_prices') {
+          result = await bulk_update_category_prices(args);
         } else {
           result = { error: 'Unknown tool' };
         }
