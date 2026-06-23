@@ -1,8 +1,27 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 import Image from 'next/image';
+import type { Metadata } from 'next';
 import { getFeaturedProducts } from '@/lib/api';
 import ProductCard from '@/components/product/ProductCard';
+import { BASE_URL, hreflangAlternates } from '@/lib/seo';
+
+export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
+  const fa = locale === 'fa';
+  return {
+    title: fa ? 'کالالند — خرید آنلاین لوازم برقی و خانگی' : 'Kalaland — Buy Home & Electrical Appliances Online',
+    description: fa
+      ? 'فروشگاه آنلاین کالالند — خرید لوازم برقی، آشپزخانه، فلزی، چینی، ملامین و بیشتر با بهترین قیمت. فروش خرده و عمده.'
+      : 'Kalaland online store — buy electric, kitchen, metal, porcelain, melamine appliances at the best price. Retail & wholesale.',
+    alternates: hreflangAlternates(''),
+    openGraph: {
+      title: fa ? 'کالالند — لوازم برقی و خانگی' : 'Kalaland — Home & Electrical Appliances',
+      description: fa ? 'خرید آنلاین لوازم خانگی با بهترین قیمت' : 'Buy home appliances at the best price',
+      url: `${BASE_URL}/${locale}`,
+      type: 'website',
+    },
+  };
+}
 import AnimatedStats from '@/components/ui/AnimatedStats';
 import ScrollVideo from '@/components/ui/ScrollVideo';
 import WarehouseDeliverySection from '@/components/ui/WarehouseDeliverySection';
@@ -32,8 +51,35 @@ export default async function HomePage({
     // Strapi not running — empty state
   }
 
+  const websiteJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'کالالند',
+    url: BASE_URL,
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: `${BASE_URL}/fa/retail?q={search_term_string}`,
+      'query-input': 'required name=search_term_string',
+    },
+  };
+
+  const orgJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'کالالند',
+    url: BASE_URL,
+    contactPoint: {
+      '@type': 'ContactPoint',
+      telephone: '+98-993-464-2455',
+      contactType: 'customer service',
+      availableLanguage: 'Persian',
+    },
+  };
+
   return (
     <div className="bg-white">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }} />
 
       {/* ── HERO ── scroll-driven 3D video */}
       <section className="relative min-h-screen flex items-center overflow-hidden border-b border-gray-100" style={{ marginTop: '-64px' }}>

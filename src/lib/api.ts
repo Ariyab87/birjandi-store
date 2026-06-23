@@ -25,6 +25,10 @@ export interface Product {
   stock_status: 'in_stock' | 'out_of_stock';
   featured: boolean;
   price_on_request: boolean;
+  seo_title: string | null;
+  seo_description: string | null;
+  focus_keyword: string | null;
+  no_index: boolean;
   images: Array<{
     id: number;
     url: string;

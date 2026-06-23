@@ -1,10 +1,28 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 import { Suspense } from 'react';
+import type { Metadata } from 'next';
 import { getProducts } from '@/lib/api';
 import ProductCard from '@/components/product/ProductCard';
 import SearchAndFilter from '@/components/retail/SearchAndFilter';
 import { RETAIL_CATEGORIES } from '@/lib/utils';
+import { BASE_URL, hreflangAlternates } from '@/lib/seo';
+
+export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
+  const fa = locale === 'fa';
+  return {
+    title: fa ? 'فروش خرده — لوازم خانگی | کالالند' : 'Retail Store — Home Appliances | Kalaland',
+    description: fa
+      ? 'خرید آنلاین لوازم خانگی برقی، فلزی، چینی، ملامین و بیشتر با بهترین قیمت از کالالند'
+      : 'Buy home appliances online — electric, metal, porcelain, melamine and more at the best price from Kalaland',
+    alternates: hreflangAlternates('retail'),
+    openGraph: {
+      title: fa ? 'فروش خرده | کالالند' : 'Retail | Kalaland',
+      url: `${BASE_URL}/${locale}/retail`,
+      type: 'website',
+    },
+  };
+}
 
 export default async function RetailPage({
   params: { locale },

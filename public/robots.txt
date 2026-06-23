@@ -1,4 +1,12 @@
 User-agent: *
-Allow: /
+Allow: /fa/
+Allow: /en/
+Disallow: /en/admin/
+Disallow: /fa/admin/
+Disallow: /api/
+Disallow: /fa/retail/checkout/
+Disallow: /en/retail/checkout/
+Disallow: /fa/wholesale/checkout/
+Disallow: /en/wholesale/checkout/
 
 Sitemap: https://kalaland24.com/sitemap.xml

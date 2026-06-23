@@ -44,7 +44,7 @@ export default function AdminChatPanel() {
   const [password, setPassword] = useState('');
   const [authed, setAuthed] = useState(false);
   const [authError, setAuthError] = useState('');
-  const [activeTab, setActiveTab] = useState<'chat' | 'prices'>('chat');
+  const [activeTab, setActiveTab] = useState<'chat' | 'prices' | 'seo'>('chat');
 
   // Chat state
   const [messages, setMessages] = useState<Message[]>([
@@ -56,6 +56,12 @@ export default function AdminChatPanel() {
   const [input, setInput] = useState('');
   const [chatLoading, setChatLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  // SEO state
+  const [seoProducts, setSeoProducts] = useState<any[]>([]);
+  const [seoLoading, setSeoLoading] = useState(false);
+  const [seoMsg, setSeoMsg] = useState('');
+  const [autoGenLoading, setAutoGenLoading] = useState(false);
 
   // Price management state
   const [category, setCategory] = useState('all');
@@ -142,6 +148,36 @@ export default function AdminChatPanel() {
       loadLog();
     } catch { setPriceMsg('خطا در اتصال'); }
     finally { setApplyLoading(false); }
+  }
+
+  async function loadSeoReport() {
+    setSeoLoading(true);
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337'}/api/products?pagination[limit]=500`);
+      const data = await res.json();
+      setSeoProducts(data.data || []);
+    } catch { setSeoMsg('خطا در اتصال به Strapi'); }
+    finally { setSeoLoading(false); }
+  }
+
+  async function autoGenerateSeo(productId: string, name: string) {
+    setAutoGenLoading(true);
+    try {
+      const res = await fetch('/api/admin/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          password,
+          messages: [{
+            role: 'user',
+            content: `یک seo_title (حداکثر ۶۰ کاراکتر) و یک seo_description (حداکثر ۱۵۵ کاراکتر) فارسی برای محصول "${name}" بنویس. فقط JSON برگردان: {"seo_title": "...", "seo_description": "..."}`
+          }],
+        }),
+      });
+      const data = await res.json();
+      setSeoMsg(`پیشنهاد برای ${name}:\n${data.reply}`);
+    } catch { setSeoMsg('خطا در تولید متن سئو'); }
+    finally { setAutoGenLoading(false); }
   }
 
   async function loadLog() {
@@ -240,6 +276,14 @@ export default function AdminChatPanel() {
         >
           💰 مدیریت قیمت
         </button>
+        <button
+          onClick={() => { setActiveTab('seo'); loadSeoReport(); }}
+          className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+            activeTab === 'seo' ? 'border-gold-500 text-gold-400' : 'border-transparent text-gray-400 hover:text-white'
+          }`}
+        >
+          🔍 سئو
+        </button>
       </div>
 
       {/* ── CHAT TAB ── */}
@@ -312,6 +356,93 @@ export default function AdminChatPanel() {
             </div>
           </div>
         </>
+      )}
+
+      {/* ── SEO TAB ── */}
+      {activeTab === 'seo' && (
+        <div className="flex-1 overflow-y-auto px-4 py-6 max-w-4xl w-full mx-auto space-y-6">
+          {seoLoading ? (
+            <p className="text-gray-400 text-sm text-center py-10">در حال بارگذاری...</p>
+          ) : (() => {
+            const total = seoProducts.length;
+            const noTitle = seoProducts.filter(p => !p.seo_title);
+            const noDesc  = seoProducts.filter(p => !p.seo_description);
+            const noDesc300 = seoProducts.filter(p => !p.description_fa || p.description_fa.length < 300);
+            const noPrice = seoProducts.filter(p => !p.retail_price && !p.price_on_request);
+            const complete = seoProducts.filter(p => p.seo_title && p.seo_description && p.description_fa?.length >= 300);
+
+            return (
+              <>
+                {/* Summary cards */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {[
+                    { label: 'کل محصولات', value: total, color: 'text-white', bg: 'bg-gray-800' },
+                    { label: 'سئو کامل ✅', value: complete.length, color: 'text-green-400', bg: 'bg-green-900/30' },
+                    { label: 'نیاز به بررسی ⚠️', value: total - complete.length, color: 'text-amber-400', bg: 'bg-amber-900/30' },
+                    { label: 'بدون توضیحات ❌', value: noDesc300.length, color: 'text-red-400', bg: 'bg-red-900/30' },
+                  ].map(card => (
+                    <div key={card.label} className={`${card.bg} rounded-xl p-4 border border-gray-800`}>
+                      <p className={`text-2xl font-bold ${card.color}`}>{card.value}</p>
+                      <p className="text-gray-400 text-xs mt-1">{card.label}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Issues list */}
+                <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 space-y-4">
+                  <h3 className="text-white font-bold mb-2">مشکلات سئو</h3>
+                  {[
+                    { label: 'بدون عنوان سئو (seo_title)', products: noTitle, severity: 'red' },
+                    { label: 'بدون توضیح سئو (seo_description)', products: noDesc, severity: 'red' },
+                    { label: 'توضیحات کمتر از ۳۰۰ کاراکتر', products: noDesc300, severity: 'amber' },
+                    { label: 'بدون قیمت', products: noPrice, severity: 'amber' },
+                  ].map(issue => issue.products.length > 0 && (
+                    <div key={issue.label}>
+                      <p className={`text-sm font-medium ${issue.severity === 'red' ? 'text-red-400' : 'text-amber-400'} mb-2`}>
+                        {issue.severity === 'red' ? '❌' : '⚠️'} {issue.label} ({issue.products.length} محصول)
+                      </p>
+                      <div className="space-y-1">
+                        {issue.products.slice(0, 5).map((p: any) => (
+                          <div key={p.documentId} className="flex items-center justify-between bg-gray-800/50 rounded-lg px-3 py-2">
+                            <span className="text-gray-300 text-xs">{p.name_fa}</span>
+                            {(issue.label.includes('عنوان') || issue.label.includes('توضیح')) && (
+                              <button
+                                onClick={() => autoGenerateSeo(p.documentId, p.name_fa)}
+                                disabled={autoGenLoading}
+                                className="text-xs text-gold-400 hover:text-gold-300 border border-gold-700/40 px-2 py-1 rounded transition-colors disabled:opacity-40"
+                              >
+                                ✨ تولید خودکار
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                        {issue.products.length > 5 && (
+                          <p className="text-gray-500 text-xs px-3">و {issue.products.length - 5} محصول دیگر...</p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                  {noTitle.length === 0 && noDesc.length === 0 && noDesc300.length === 0 && noPrice.length === 0 && (
+                    <p className="text-green-400 text-sm">✅ همه محصولات سئو کامل دارند!</p>
+                  )}
+                </div>
+
+                {seoMsg && (
+                  <div className="bg-gray-800 border border-gray-700 rounded-xl p-4 text-gray-200 text-sm whitespace-pre-wrap">
+                    {seoMsg}
+                  </div>
+                )}
+
+                <button
+                  onClick={() => { setSeoProducts([]); loadSeoReport(); }}
+                  className="text-xs text-gray-400 hover:text-white border border-gray-700 px-4 py-2 rounded-lg transition-colors"
+                >
+                  🔄 بروزرسانی گزارش
+                </button>
+              </>
+            );
+          })()}
+        </div>
       )}
 
       {/* ── PRICE MANAGEMENT TAB ── */}

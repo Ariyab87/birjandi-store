@@ -1,6 +1,24 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 import Image from 'next/image';
+import type { Metadata } from 'next';
+import { BASE_URL, hreflangAlternates } from '@/lib/seo';
+
+export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
+  const fa = locale === 'fa';
+  return {
+    title: fa ? 'فروش عمده — لوازم خانگی برای کسب‌وکار | کالالند' : 'Wholesale — Home Appliances for Business | Kalaland',
+    description: fa
+      ? 'خرید عمده لوازم خانگی و آشپزخانه برای کافه، رستوران، هتل، باشگاه و دفتر کار با قیمت ویژه از کالالند'
+      : 'Wholesale home and kitchen appliances for cafés, restaurants, hotels, gyms and offices at special prices from Kalaland',
+    alternates: hreflangAlternates('wholesale'),
+    openGraph: {
+      title: fa ? 'فروش عمده | کالالند' : 'Wholesale | Kalaland',
+      url: `${BASE_URL}/${locale}/wholesale`,
+      type: 'website',
+    },
+  };
+}
 
 const BUSINESS_TYPES = [
   {
