@@ -4,7 +4,7 @@ const ADMIN_PASSWORD = process.env.ADMIN_CHAT_PASSWORD || 'bshop-admin-2024';
 const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337';
 const STRAPI_TOKEN = process.env.STRAPI_API_TOKEN || '';
 
-export interface PriceChangeLogEntry {
+interface PriceChangeLogEntry {
   id: string;
   date: string;
   category: string;
