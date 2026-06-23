@@ -51,7 +51,7 @@ export default function Footer() {
             </a>
             {/* Rubika */}
             <a
-              href="https://rubika.ir/jj/989934642455"
+              href="https://rubika.ir/jj/Kalaland24"
               aria-label="Rubika"
               target="_blank"
               rel="noopener noreferrer"
