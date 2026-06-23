@@ -65,13 +65,17 @@
     "rights": "تمامی حقوق محفوظ است"
   },
   "categories": {
-    "kitchen": "لوازم آشپزخانه",
-    "laundry": "لباسشویی",
-    "cooling": "سرمایش و یخچال",
-    "heating": "گرمایش",
-    "air": "تصفیه هوا",
-    "cleaning": "نظافت",
-    "small": "لوازم کوچک",
-    "accessories": "لوازم جانبی"
+    "electric":  "برقی",
+    "metal":     "فلزی",
+    "melamine":  "ملامین",
+    "glass":     "شکستنی",
+    "porcelain": "چینی",
+    "teflon":    "تفلون",
+    "steel":     "استیل",
+    "ceramic":   "سرامیک",
+    "plastic":   "پلاستیک",
+    "crystal":   "کریستال",
+    "copper":    "مسی",
+    "cast_iron": "چدن"
   }
 }

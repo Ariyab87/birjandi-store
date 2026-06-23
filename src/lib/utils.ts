@@ -9,14 +9,18 @@ export function generateOrderId(): string {
 }
 
 export const RETAIL_CATEGORIES = [
-  { key: 'kitchen', icon: '🍳' },
-  { key: 'laundry', icon: '👕' },
-  { key: 'cooling', icon: '❄️' },
-  { key: 'heating', icon: '🌡️' },
-  { key: 'air', icon: '💨' },
-  { key: 'cleaning', icon: '🧹' },
-  { key: 'small', icon: '☕' },
-  { key: 'accessories', icon: '🔌' },
+  { key: 'electric',  icon: '⚡' },
+  { key: 'metal',     icon: '🥘' },
+  { key: 'melamine',  icon: '🍽️' },
+  { key: 'glass',     icon: '🥂' },
+  { key: 'porcelain', icon: '🫖' },
+  { key: 'teflon',    icon: '🍳' },
+  { key: 'steel',     icon: '🔩' },
+  { key: 'ceramic',   icon: '🏺' },
+  { key: 'plastic',   icon: '🧴' },
+  { key: 'crystal',   icon: '💎' },
+  { key: 'copper',    icon: '🪙' },
+  { key: 'cast_iron', icon: '⚫' },
 ] as const;
 
 export const WHOLESALE_BUSINESS_TYPES = [

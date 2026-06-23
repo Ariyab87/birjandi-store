@@ -25,15 +25,19 @@ interface LogEntry {
 }
 
 const CATEGORIES = [
-  { key: 'all', label: 'همه دسته‌ها' },
-  { key: 'kitchen', label: 'آشپزخانه' },
-  { key: 'laundry', label: 'رختشویی' },
-  { key: 'cooling', label: 'سرمایش' },
-  { key: 'heating', label: 'گرمایش' },
-  { key: 'air', label: 'تهویه هوا' },
-  { key: 'cleaning', label: 'نظافت' },
-  { key: 'small', label: 'لوازم کوچک' },
-  { key: 'accessories', label: 'لوازم جانبی' },
+  { key: 'all',      label: 'همه دسته‌ها' },
+  { key: 'electric', label: 'برقی' },
+  { key: 'metal',    label: 'فلزی' },
+  { key: 'melamine', label: 'ملامین' },
+  { key: 'glass',    label: 'شکستنی' },
+  { key: 'porcelain',label: 'چینی' },
+  { key: 'teflon',   label: 'تفلون' },
+  { key: 'steel',    label: 'استیل' },
+  { key: 'ceramic',  label: 'سرامیک' },
+  { key: 'plastic',  label: 'پلاستیک' },
+  { key: 'crystal',  label: 'کریستال' },
+  { key: 'copper',   label: 'مسی' },
+  { key: 'cast_iron',label: 'چدن' },
 ];
 
 export default function AdminChatPanel() {

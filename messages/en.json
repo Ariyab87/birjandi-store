@@ -65,13 +65,17 @@
     "rights": "All rights reserved"
   },
   "categories": {
-    "kitchen": "Kitchen Appliances",
-    "laundry": "Laundry",
-    "cooling": "Cooling & Refrigeration",
-    "heating": "Heating",
-    "air": "Air Treatment",
-    "cleaning": "Cleaning",
-    "small": "Small Appliances",
-    "accessories": "Accessories"
+    "electric":  "Electric",
+    "metal":     "Metal",
+    "melamine":  "Melamine",
+    "glass":     "Glassware",
+    "porcelain": "Porcelain",
+    "teflon":    "Teflon",
+    "steel":     "Steel",
+    "ceramic":   "Ceramic",
+    "plastic":   "Plastic",
+    "crystal":   "Crystal",
+    "copper":    "Copper",
+    "cast_iron": "Cast Iron"
   }
 }
