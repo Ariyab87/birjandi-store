@@ -79,7 +79,7 @@ export default function SearchAndFilter() {
         <select
           value={brand}
           onChange={(e) => handleBrand(e.target.value)}
-          className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-navy-500 bg-white"
+          className="flex-1 sm:flex-none border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:border-navy-500 bg-white"
         >
           <option value="">{fa ? 'همه برندها' : 'All brands'}</option>
           {BRANDS.map((b) => (
@@ -91,7 +91,7 @@ export default function SearchAndFilter() {
         <select
           value={price}
           onChange={(e) => handlePrice(e.target.value)}
-          className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-navy-500 bg-white"
+          className="flex-1 sm:flex-none border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:border-navy-500 bg-white"
         >
           {PRICE_RANGES.map((r) => (
             <option key={r.value} value={r.value}>
