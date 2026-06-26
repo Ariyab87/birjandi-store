@@ -7,3 +7,6 @@ node_modules/
 logo/
 .DS_Store
 .vercel
+
+# TypeScript build cache
+*.tsbuildinfo
