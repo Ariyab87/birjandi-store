@@ -6,21 +6,27 @@ import { getProducts } from '@/lib/api';
 import ProductCard from '@/components/product/ProductCard';
 import SearchAndFilter from '@/components/retail/SearchAndFilter';
 import { RETAIL_CATEGORIES } from '@/lib/utils';
-import { BASE_URL, hreflangAlternates } from '@/lib/seo';
+import { BASE_URL, hreflangAlternates, ogImages } from '@/lib/seo';
 
 export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
   const fa = locale === 'fa';
+  const title = fa ? 'فروش خرده — لوازم خانگی | کالالند' : 'Retail Store — Home Appliances | Kalaland';
+  const description = fa
+    ? 'خرید آنلاین لوازم خانگی برقی، فلزی، چینی، ملامین و بیشتر با بهترین قیمت از کالالند'
+    : 'Buy home appliances online — electric, metal, porcelain, melamine and more at the best price from Kalaland';
+  const ogAlt = fa ? 'فروش خرده | کالالند' : 'Retail | Kalaland';
   return {
-    title: fa ? 'فروش خرده — لوازم خانگی | کالالند' : 'Retail Store — Home Appliances | Kalaland',
-    description: fa
-      ? 'خرید آنلاین لوازم خانگی برقی، فلزی، چینی، ملامین و بیشتر با بهترین قیمت از کالالند'
-      : 'Buy home appliances online — electric, metal, porcelain, melamine and more at the best price from Kalaland',
-    alternates: hreflangAlternates('retail'),
+    title,
+    description,
+    alternates: hreflangAlternates('retail', locale),
     openGraph: {
-      title: fa ? 'فروش خرده | کالالند' : 'Retail | Kalaland',
+      title: ogAlt,
+      description,
       url: `${BASE_URL}/${locale}/retail`,
       type: 'website',
+      images: ogImages(ogAlt),
     },
+    twitter: { card: 'summary_large_image', title: ogAlt, description, images: [ogImages(ogAlt)[0].url] },
   };
 }
 

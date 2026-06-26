@@ -2,21 +2,27 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 import Image from 'next/image';
 import type { Metadata } from 'next';
-import { BASE_URL, hreflangAlternates } from '@/lib/seo';
+import { BASE_URL, hreflangAlternates, ogImages } from '@/lib/seo';
 
 export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
   const fa = locale === 'fa';
+  const title = fa ? 'فروش عمده — لوازم خانگی برای کسب‌وکار | کالالند' : 'Wholesale — Home Appliances for Business | Kalaland';
+  const description = fa
+    ? 'خرید عمده لوازم خانگی و آشپزخانه برای کافه، رستوران، هتل، باشگاه و دفتر کار با قیمت ویژه از کالالند'
+    : 'Wholesale home and kitchen appliances for cafés, restaurants, hotels, gyms and offices at special prices from Kalaland';
+  const ogAlt = fa ? 'فروش عمده | کالالند' : 'Wholesale | Kalaland';
   return {
-    title: fa ? 'فروش عمده — لوازم خانگی برای کسب‌وکار | کالالند' : 'Wholesale — Home Appliances for Business | Kalaland',
-    description: fa
-      ? 'خرید عمده لوازم خانگی و آشپزخانه برای کافه، رستوران، هتل، باشگاه و دفتر کار با قیمت ویژه از کالالند'
-      : 'Wholesale home and kitchen appliances for cafés, restaurants, hotels, gyms and offices at special prices from Kalaland',
-    alternates: hreflangAlternates('wholesale'),
+    title,
+    description,
+    alternates: hreflangAlternates('wholesale', locale),
     openGraph: {
-      title: fa ? 'فروش عمده | کالالند' : 'Wholesale | Kalaland',
+      title: ogAlt,
+      description,
       url: `${BASE_URL}/${locale}/wholesale`,
       type: 'website',
+      images: ogImages(ogAlt),
     },
+    twitter: { card: 'summary_large_image', title: ogAlt, description, images: [ogImages(ogAlt)[0].url] },
   };
 }
 

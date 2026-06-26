@@ -39,7 +39,7 @@ export async function generateMetadata({
       title,
       description,
       keywords: [name, p.brand, CATEGORY_LABELS[p.category]?.[fa ? 'fa' : 'en'] || p.category, 'کالالند'].filter(Boolean).join(', '),
-      alternates: hreflangAlternates(path),
+      alternates: hreflangAlternates(path, locale),
       robots: p.no_index ? { index: false, follow: false } : { index: true, follow: true },
       openGraph: {
         title,
@@ -85,6 +85,13 @@ export default async function ProductPage({
   const catLabel = CATEGORY_LABELS[product.category]?.[fa ? 'fa' : 'en'] || product.category;
   const productUrl = `${BASE_URL}/${locale}/retail/${product.category}/${productId}`;
 
+  // Price validity: one year out (Google wants priceValidUntil for rich results)
+  const priceValidUntil = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+  const seller = { '@type': 'Organization', name: 'کالالند', url: BASE_URL };
+  const availability = product.stock_status === 'in_stock'
+    ? 'https://schema.org/InStock'
+    : 'https://schema.org/OutOfStock';
+
   // JSON-LD: Product schema
   const productJsonLd = {
     '@context': 'https://schema.org',
@@ -93,15 +100,25 @@ export default async function ProductPage({
     description: description || name,
     image: images.map(img => getImageUrl(img.url, 'full')),
     brand: { '@type': 'Brand', name: product.brand },
+    category: catLabel,
     sku: productId,
     offers: product.price_on_request
-      ? { '@type': 'Offer', availability: 'https://schema.org/InStock', url: productUrl }
+      ? {
+          '@type': 'Offer',
+          availability,
+          url: productUrl,
+          itemCondition: 'https://schema.org/NewCondition',
+          seller,
+        }
       : {
           '@type': 'Offer',
           priceCurrency: 'IRR',
-          price: product.retail_price,
-          availability: product.stock_status === 'in_stock' ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+          price: String(product.retail_price),
+          priceValidUntil,
+          availability,
+          itemCondition: 'https://schema.org/NewCondition',
           url: productUrl,
+          seller,
         },
   };
 

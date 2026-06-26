@@ -4,21 +4,31 @@ import Image from 'next/image';
 import type { Metadata } from 'next';
 import { getFeaturedProducts } from '@/lib/api';
 import ProductCard from '@/components/product/ProductCard';
-import { BASE_URL, hreflangAlternates } from '@/lib/seo';
+import { BASE_URL, hreflangAlternates, ogImages, SOCIAL_LINKS } from '@/lib/seo';
 
 export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
   const fa = locale === 'fa';
+  const title = fa ? 'کالالند — خرید آنلاین لوازم برقی و خانگی' : 'Kalaland — Buy Home & Electrical Appliances Online';
+  const description = fa
+    ? 'فروشگاه آنلاین کالالند — خرید لوازم برقی، آشپزخانه، فلزی، چینی، ملامین و بیشتر با بهترین قیمت. فروش خرده و عمده.'
+    : 'Kalaland online store — buy electric, kitchen, metal, porcelain, melamine appliances at the best price. Retail & wholesale.';
+  const ogAlt = fa ? 'کالالند — لوازم برقی و خانگی' : 'Kalaland — Home & Electrical Appliances';
   return {
-    title: fa ? 'کالالند — خرید آنلاین لوازم برقی و خانگی' : 'Kalaland — Buy Home & Electrical Appliances Online',
-    description: fa
-      ? 'فروشگاه آنلاین کالالند — خرید لوازم برقی، آشپزخانه، فلزی، چینی، ملامین و بیشتر با بهترین قیمت. فروش خرده و عمده.'
-      : 'Kalaland online store — buy electric, kitchen, metal, porcelain, melamine appliances at the best price. Retail & wholesale.',
-    alternates: hreflangAlternates(''),
+    title,
+    description,
+    alternates: hreflangAlternates('', locale),
     openGraph: {
-      title: fa ? 'کالالند — لوازم برقی و خانگی' : 'Kalaland — Home & Electrical Appliances',
+      title: ogAlt,
       description: fa ? 'خرید آنلاین لوازم خانگی با بهترین قیمت' : 'Buy home appliances at the best price',
       url: `${BASE_URL}/${locale}`,
       type: 'website',
+      images: ogImages(ogAlt),
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: ogAlt,
+      description,
+      images: [ogImages(ogAlt)[0].url],
     },
   };
 }
@@ -67,12 +77,19 @@ export default async function HomePage({
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: 'کالالند',
+    alternateName: 'Kalaland',
     url: BASE_URL,
+    logo: `${BASE_URL}/logo.png`,
+    image: `${BASE_URL}/logo.png`,
+    description: fa
+      ? 'عرضه‌کننده لوازم برقی و خانگی — فروش خرده و عمده با بیش از ۳۰ سال تجربه'
+      : 'Supplier of home and electrical appliances — retail and wholesale with over 30 years of experience',
+    sameAs: SOCIAL_LINKS,
     contactPoint: {
       '@type': 'ContactPoint',
       telephone: '+98-993-464-2455',
       contactType: 'customer service',
-      availableLanguage: 'Persian',
+      availableLanguage: ['Persian', 'English'],
     },
   };
 

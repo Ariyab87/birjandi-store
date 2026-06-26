@@ -6,7 +6,7 @@ import { BasketProvider } from '@/components/basket/BasketContext';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import ChatWidget from '@/components/chat/ChatWidget';
-import { BASE_URL } from '@/lib/seo';
+import { BASE_URL, ogImages } from '@/lib/seo';
 import '@/styles/globals.css';
 
 export function generateStaticParams() {
@@ -37,11 +37,26 @@ export async function generateMetadata({
       siteName: 'کالالند',
       locale: fa ? 'fa_IR' : 'en_US',
       type: 'website',
+      images: ogImages(fa ? 'کالالند' : 'Kalaland'),
+    },
+    twitter: {
+      card: 'summary_large_image',
+      images: [ogImages('Kalaland')[0].url],
     },
     verification: {
       google: 'blj87sz43KjDOYwluPkJB0ilg9BjADEJzfU__gw7f9M',
     },
-    robots: { index: true, follow: true },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+        'max-video-preview': -1,
+      },
+    },
   };
 }
 
