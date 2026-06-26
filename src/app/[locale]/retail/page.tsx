@@ -60,8 +60,15 @@ export default async function RetailPage({
   }
 
   let products = { data: [] as Awaited<ReturnType<typeof getProducts>>['data'] };
+  let allBrands: string[] = [];
   try {
+    // Fetch filtered products for the grid
     products = await getProducts(filters);
+    // Fetch ALL products (no filters) just to build the brand list
+    const allProducts = await getProducts();
+    allBrands = Array.from(new Set(
+      allProducts.data.map(p => p.brand).filter(Boolean)
+    )).sort((a, b) => a.localeCompare(b, 'fa'));
   } catch {
     // Strapi not running
   }
@@ -81,7 +88,7 @@ export default async function RetailPage({
 
       {/* Search & Filters */}
       <Suspense fallback={null}>
-        <SearchAndFilter />
+        <SearchAndFilter brands={allBrands} />
       </Suspense>
 
       {/* Category tabs — horizontal scroll on mobile */}

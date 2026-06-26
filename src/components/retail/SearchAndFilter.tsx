@@ -3,8 +3,6 @@
 import { useRouter, useSearchParams, useParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
 
-const BRANDS = ['LG', 'Samsung', 'Bosch', 'Snowa', 'Haier', 'Beko', 'Arçelik', 'Absal'];
-
 const PRICE_RANGES = [
   { label: { fa: 'همه قیمت‌ها', en: 'All prices' }, value: '' },
   { label: { fa: 'زیر ۵ میلیون', en: 'Under 5M' }, value: '0-5000000' },
@@ -13,7 +11,7 @@ const PRICE_RANGES = [
   { label: { fa: 'بالای ۳۰ میلیون', en: 'Over 30M' }, value: '30000000-999999999' },
 ];
 
-export default function SearchAndFilter() {
+export default function SearchAndFilter({ brands = [] }: { brands?: string[] }) {
   const router = useRouter();
   const params = useParams();
   const searchParams = useSearchParams();
@@ -82,7 +80,7 @@ export default function SearchAndFilter() {
           className="flex-1 sm:flex-none border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:border-navy-500 bg-white"
         >
           <option value="">{fa ? 'همه برندها' : 'All brands'}</option>
-          {BRANDS.map((b) => (
+          {brands.map((b) => (
             <option key={b} value={b}>{b}</option>
           ))}
         </select>
