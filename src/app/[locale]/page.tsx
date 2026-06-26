@@ -8,10 +8,12 @@ import { BASE_URL, hreflangAlternates, ogImages, SOCIAL_LINKS } from '@/lib/seo'
 
 export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
   const fa = locale === 'fa';
-  const title = fa ? 'کالالند — خرید آنلاین لوازم برقی و خانگی' : 'Kalaland — Buy Home & Electrical Appliances Online';
+  const title = fa
+    ? 'خرید آنلاین لوازم خانگی و برقی | ارسال سراسر ایران | کالالند'
+    : 'Buy Home & Electrical Appliances Online | Nationwide Delivery | Kalaland';
   const description = fa
-    ? 'فروشگاه آنلاین کالالند — خرید لوازم برقی، آشپزخانه، فلزی، چینی، ملامین و بیشتر با بهترین قیمت. فروش خرده و عمده.'
-    : 'Kalaland online store — buy electric, kitchen, metal, porcelain, melamine appliances at the best price. Retail & wholesale.';
+    ? 'فروشگاه آنلاین کالالند — خرید ظروف ملامین، چینی، استیل، لوازم برقی و آشپزخانه با بهترین قیمت. ارسال به سراسر ایران. فروش خرده و عمده.'
+    : 'Kalaland online store — buy melamine, porcelain, steel, electric and kitchen appliances at the best price. Delivery across Iran. Retail & wholesale.';
   const ogAlt = fa ? 'کالالند — لوازم برقی و خانگی' : 'Kalaland — Home & Electrical Appliances';
   return {
     title,
@@ -19,7 +21,7 @@ export async function generateMetadata({ params: { locale } }: { params: { local
     alternates: hreflangAlternates('', locale),
     openGraph: {
       title: ogAlt,
-      description: fa ? 'خرید آنلاین لوازم خانگی با بهترین قیمت' : 'Buy home appliances at the best price',
+      description: fa ? 'خرید ظروف ملامین، چینی، استیل و لوازم برقی | ارسال سراسر ایران' : 'Buy melamine, porcelain, steel & electrical appliances | Delivery across Iran',
       url: `${BASE_URL}/${locale}`,
       type: 'website',
       images: ogImages(ogAlt),

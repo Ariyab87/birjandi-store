@@ -10,10 +10,12 @@ import { BASE_URL, hreflangAlternates, ogImages } from '@/lib/seo';
 
 export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
   const fa = locale === 'fa';
-  const title = fa ? 'فروش خرده — لوازم خانگی | کالالند' : 'Retail Store — Home Appliances | Kalaland';
+  const title = fa
+    ? 'خرید لوازم خانگی آنلاین | ظروف، برقی، ملامین، چینی | کالالند'
+    : 'Buy Home Appliances Online | Cookware, Electric, Melamine, Porcelain | Kalaland';
   const description = fa
-    ? 'خرید آنلاین لوازم خانگی برقی، فلزی، چینی، ملامین و بیشتر با بهترین قیمت از کالالند'
-    : 'Buy home appliances online — electric, metal, porcelain, melamine and more at the best price from Kalaland';
+    ? 'خرید ظروف آشپزخانه، لوازم برقی، ظروف ملامین، چینی، استیل، تفلون و بیشتر با بهترین قیمت. ارسال سریع به سراسر ایران از کالالند.'
+    : 'Buy kitchen cookware, electric appliances, melamine, porcelain, steel, teflon and more at the best price. Fast delivery across Iran from Kalaland.';
   const ogAlt = fa ? 'فروش خرده | کالالند' : 'Retail | Kalaland';
   return {
     title,

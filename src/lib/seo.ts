@@ -23,14 +23,15 @@ export function truncate(text: string | null | undefined, max: number): string {
 }
 
 export function buildTitle(name: string, locale: string): string {
-  if (locale === 'fa') return `${name} | خرید آنلاین | کالالند`;
-  return `${name} | Buy Online | Kalaland`;
+  if (locale === 'fa') return `خرید ${name} | قیمت و مشخصات | کالالند`;
+  return `Buy ${name} | Price & Details | Kalaland`;
 }
 
 export function buildDescription(desc: string | null | undefined, name: string, locale: string): string {
   if (desc && desc.length > 30) return truncate(desc, 155);
-  if (locale === 'fa') return `خرید ${name} با بهترین قیمت از کالالند — فروش خرده و عمده لوازم خانگی`;
-  return `Buy ${name} at the best price from Kalaland — retail and wholesale home appliances`;
+  if (locale === 'fa')
+    return `خرید ${name} با بهترین قیمت از کالالند. موجود در انبار، ارسال سریع به سراسر ایران. ضمانت اصالت کالا.`;
+  return `Buy ${name} at the best price from Kalaland. In stock, fast delivery across Iran. Authenticity guaranteed.`;
 }
 
 /**

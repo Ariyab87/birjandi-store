@@ -6,10 +6,12 @@ import { BASE_URL, hreflangAlternates, ogImages } from '@/lib/seo';
 
 export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
   const fa = locale === 'fa';
-  const title = fa ? 'فروش عمده — لوازم خانگی برای کسب‌وکار | کالالند' : 'Wholesale — Home Appliances for Business | Kalaland';
+  const title = fa
+    ? 'فروش عمده ظروف و لوازم خانگی | کافه، رستوران، هتل | کالالند'
+    : 'Wholesale Cookware & Home Appliances | Café, Restaurant, Hotel | Kalaland';
   const description = fa
-    ? 'خرید عمده لوازم خانگی و آشپزخانه برای کافه، رستوران، هتل، باشگاه و دفتر کار با قیمت ویژه از کالالند'
-    : 'Wholesale home and kitchen appliances for cafés, restaurants, hotels, gyms and offices at special prices from Kalaland';
+    ? 'تأمین عمده ظروف و لوازم آشپزخانه برای کافه، رستوران، هتل، باشگاه و دفتر کار. قیمت ویژه عمده‌فروشی با ارسال به سراسر ایران از کالالند.'
+    : 'Wholesale supply of cookware and kitchen appliances for cafés, restaurants, hotels, gyms and offices. Special bulk prices with delivery across Iran from Kalaland.';
   const ogAlt = fa ? 'فروش عمده | کالالند' : 'Wholesale | Kalaland';
   return {
     title,
