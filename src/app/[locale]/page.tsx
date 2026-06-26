@@ -100,7 +100,7 @@ export default async function HomePage({
               : <>Kalaland<span className="font-normal" style={{verticalAlign:'super', fontSize:'0.55em'}}>24</span><br className="hidden sm:block" /> Electrical &amp; Household</>
             }
           </h1>
-          <p className="text-lg text-white mb-12 max-w-xl mx-auto" style={{ textShadow: '0 2px 12px rgba(0,0,0,0.8), 0 1px 4px rgba(0,0,0,0.9)' }}>
+          <p className="text-base md:text-lg text-white mb-6 md:mb-12 max-w-xl mx-auto" style={{ textShadow: '0 2px 12px rgba(0,0,0,0.8), 0 1px 4px rgba(0,0,0,0.9)' }}>
             {fa
               ? 'عرضه‌کننده معتبر لوازم خانگی با بهترین برندهای دنیا — خرده‌فروشی و عمده‌فروشی'
               : 'Premium supplier of home appliances — retail & wholesale across Iran'}
@@ -110,29 +110,29 @@ export default async function HomePage({
             {/* Retail card — glass style */}
             <Link
               href={`/${locale}/retail`}
-              className="group bg-white/10 hover:bg-white/15 border border-white/30 rounded-2xl p-8 transition-all hover:scale-105 hover:shadow-2xl text-white backdrop-blur-md"
+              className="group bg-white/10 hover:bg-white/15 border border-white/30 rounded-2xl p-5 md:p-8 transition-all hover:scale-105 hover:shadow-2xl text-white backdrop-blur-md"
             >
-              <div className="mb-4">
-                <svg className="w-10 h-10 mx-auto text-white" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+              <div className="mb-3 md:mb-4">
+                <svg className="w-8 h-8 md:w-10 md:h-10 mx-auto text-white" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
                 </svg>
               </div>
-              <h2 className="text-2xl font-bold mb-2">{t('retail')}</h2>
-              <p className="text-sm text-white/70 group-hover:text-white/90 transition-colors">{t('retail_desc')}</p>
+              <h2 className="text-xl md:text-2xl font-bold mb-1 md:mb-2">{t('retail')}</h2>
+              <p className="text-xs md:text-sm text-white/70 group-hover:text-white/90 transition-colors">{t('retail_desc')}</p>
             </Link>
 
             {/* Wholesale card — gold, priority */}
             <Link
               href={`/${locale}/wholesale`}
-              className="group bg-white/10 hover:bg-white/15 border border-white/30 rounded-2xl p-8 transition-all hover:scale-105 hover:shadow-2xl text-white backdrop-blur-md"
+              className="group bg-white/10 hover:bg-white/15 border border-white/30 rounded-2xl p-5 md:p-8 transition-all hover:scale-105 hover:shadow-2xl text-white backdrop-blur-md"
             >
-              <div className="mb-4">
-                <svg className="w-10 h-10 mx-auto text-white" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+              <div className="mb-3 md:mb-4">
+                <svg className="w-8 h-8 md:w-10 md:h-10 mx-auto text-white" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" />
                 </svg>
               </div>
-              <h2 className="text-2xl font-bold mb-2">{t('wholesale')}</h2>
-              <p className="text-sm text-white/80 group-hover:text-white transition-colors">{t('wholesale_desc')}</p>
+              <h2 className="text-xl md:text-2xl font-bold mb-1 md:mb-2">{t('wholesale')}</h2>
+              <p className="text-xs md:text-sm text-white/80 group-hover:text-white transition-colors">{t('wholesale_desc')}</p>
             </Link>
           </div>
         </div>
@@ -224,7 +224,7 @@ export default async function HomePage({
                 href={`/${locale}/wholesale/${biz.key}`}
                 className="group relative rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all hover:scale-105"
               >
-                <div className="relative h-44 w-full">
+                <div className="relative h-36 md:h-44 w-full">
                   <Image
                     src={biz.image}
                     alt={biz.label.en}

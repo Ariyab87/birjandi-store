@@ -10,20 +10,24 @@ export default function ScrollVideo({ src }: { src: string }) {
     const video = videoRef.current;
     if (!video) return;
 
-    video.pause();
+    // Try immediate autoplay (works on most browsers with muted+playsInline)
+    video.play().catch(() => {});
 
-    const onScroll = () => {
+    const tryPlay = () => {
       if (playedRef.current) return;
-      // Trigger when user scrolls at all (page is no longer at top)
-      if (window.scrollY > 10) {
-        playedRef.current = true;
-        video.currentTime = 0;
-        video.play().catch(() => {});
-      }
+      playedRef.current = true;
+      video.currentTime = 0;
+      video.play().catch(() => {});
     };
 
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    // iOS fires touchstart before scroll — catches it earlier
+    window.addEventListener('touchstart', tryPlay, { passive: true, once: true });
+    window.addEventListener('scroll', tryPlay, { passive: true, once: true });
+
+    return () => {
+      window.removeEventListener('touchstart', tryPlay);
+      window.removeEventListener('scroll', tryPlay);
+    };
   }, []);
 
   return (

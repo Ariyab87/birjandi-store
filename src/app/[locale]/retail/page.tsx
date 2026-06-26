@@ -76,8 +76,8 @@ export default async function RetailPage({
         <SearchAndFilter />
       </Suspense>
 
-      {/* Category tabs */}
-      <div className="flex gap-2 flex-wrap mb-8 pb-4 border-b border-gray-100">
+      {/* Category tabs — horizontal scroll on mobile */}
+      <div className="flex gap-2 overflow-x-auto flex-nowrap mb-8 pb-4 border-b border-gray-100 scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0 md:flex-wrap">
         <Link
           href={`/${locale}/retail`}
           className={`px-4 py-2 rounded-full text-sm border transition-colors ${

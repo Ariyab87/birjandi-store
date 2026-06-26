@@ -26,7 +26,7 @@ export default function BasketDrawer({ open, onClose }: Props) {
         />
       )}
       <div
-        className={`fixed top-0 ${locale === 'fa' ? 'left-0' : 'right-0'} h-full w-80 bg-white shadow-2xl z-50 flex flex-col transition-transform duration-300 ${
+        className={`fixed top-0 ${locale === 'fa' ? 'left-0' : 'right-0'} h-full w-[85vw] sm:w-80 max-w-sm bg-white shadow-2xl z-50 flex flex-col transition-transform duration-300 ${
           open ? 'translate-x-0' : locale === 'fa' ? '-translate-x-full' : 'translate-x-full'
         }`}
       >

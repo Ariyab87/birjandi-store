@@ -1,9 +1,9 @@
 const textBlock = (label: string, heading: string, paragraph: string) => (
-  <div className="flex flex-col justify-center" style={{ borderLeft: '3px solid #D4A017', paddingLeft: '28px' }}>
+  <div className="flex flex-col justify-center" style={{ borderInlineStart: '3px solid #D4A017', paddingInlineStart: '28px' }}>
     <span style={{ fontSize: '11px', letterSpacing: '0.1em', color: '#D4A017', textTransform: 'uppercase', fontWeight: 600, marginBottom: '12px' }}>
       {label}
     </span>
-    <h3 style={{ fontSize: '28px', fontWeight: 500, color: '#0e2642', lineHeight: 1.3, marginBottom: '16px' }}>
+    <h3 style={{ fontWeight: 500, color: '#0e2642', lineHeight: 1.3, marginBottom: '16px' }} className="text-xl md:text-3xl">
       {heading}
     </h3>
     <p style={{ fontSize: '15px', lineHeight: 1.8, color: '#6b7280' }}>
@@ -30,8 +30,8 @@ export default function WarehouseDeliverySection({ locale }: { locale: string })
   const fa = locale === 'fa';
 
   return (
-    <section style={{ backgroundColor: '#f9f6f0', padding: '80px 0' }}>
-      <div className="max-w-6xl mx-auto px-6 flex flex-col gap-20">
+    <section style={{ backgroundColor: '#f9f6f0' }} className="py-10 md:py-20">
+      <div className="max-w-6xl mx-auto px-4 md:px-6 flex flex-col gap-10 md:gap-20">
 
         {/* Row 1 — Warehouse: video left, text right */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
