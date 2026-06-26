@@ -15,8 +15,8 @@ export interface Product {
   name_fa: string;
   name_en: string;
   brand: string;
-  retail_price: number;
-  wholesale_price: number;
+  retail_price: number | null;
+  wholesale_price: number | null;
   min_wholesale_qty: number;
   category: string;
   business_types: string[] | null;

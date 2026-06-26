@@ -27,10 +27,10 @@ async function buildProductCatalog(): Promise<string> {
     if (!data.length) return 'در حال حاضر محصولی در انبار ثبت نشده است.';
 
     const lines = data.map(p => {
-      const price = p.price_on_request
+      const price = (p.price_on_request || p.retail_price == null)
         ? 'قیمت استعلامی'
         : formatPrice(p.retail_price);
-      const wholesale = p.price_on_request
+      const wholesale = (p.price_on_request || p.wholesale_price == null)
         ? ''
         : ` | قیمت عمده: ${formatPrice(p.wholesale_price)} (حداقل ${p.min_wholesale_qty} عدد)`;
       const stock = p.stock_status === 'in_stock' ? '✅ موجود' : '❌ ناموجود';

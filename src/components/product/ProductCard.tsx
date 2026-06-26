@@ -74,10 +74,16 @@ export default function ProductCard({ product, mode }: Props) {
             </>
           ) : (
             <>
-              <span className="font-bold text-gold-600 text-sm">{formatPrice(price, locale)}</span>
+              {price != null ? (
+                <span className="font-bold text-gold-600 text-sm">{formatPrice(price, locale)}</span>
+              ) : (
+                <span className="text-xs font-semibold bg-amber-100 text-amber-700 px-2 py-1 rounded-full">
+                  {locale === 'fa' ? 'استعلام قیمت' : 'Price on Request'}
+                </span>
+              )}
               <button
-                disabled={!inStock}
-                onClick={() => addItem({ id: product.id, name, price, quantity: 1, image: imgUrl })}
+                disabled={!inStock || price == null}
+                onClick={() => price != null && addItem({ id: product.id, name, price, quantity: 1, image: imgUrl })}
                 className="btn-primary text-xs py-2 px-3 disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {t('add_to_basket')}
