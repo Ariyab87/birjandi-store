@@ -18,7 +18,7 @@ const CATEGORY_FA: Record<string, string> = {
 };
 
 function formatPrice(n: number): string {
-  return n.toLocaleString('fa-IR') + ' ریال';
+  return (n * 1000).toLocaleString('fa-IR') + ' تومان';
 }
 
 async function buildProductCatalog(): Promise<string> {

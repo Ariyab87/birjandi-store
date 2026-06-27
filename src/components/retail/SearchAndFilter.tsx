@@ -3,12 +3,13 @@
 import { useRouter, useSearchParams, useParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
 
+// Stored prices are in thousands of tomans — filter values must match
 const PRICE_RANGES = [
   { label: { fa: 'همه قیمت‌ها', en: 'All prices' }, value: '' },
-  { label: { fa: 'زیر ۵ میلیون', en: 'Under 5M' }, value: '0-5000000' },
-  { label: { fa: '۵ تا ۱۵ میلیون', en: '5M – 15M' }, value: '5000000-15000000' },
-  { label: { fa: '۱۵ تا ۳۰ میلیون', en: '15M – 30M' }, value: '15000000-30000000' },
-  { label: { fa: 'بالای ۳۰ میلیون', en: 'Over 30M' }, value: '30000000-999999999' },
+  { label: { fa: 'زیر ۵ میلیون', en: 'Under 5M' }, value: '0-5000' },
+  { label: { fa: '۵ تا ۱۵ میلیون', en: '5M – 15M' }, value: '5000-15000' },
+  { label: { fa: '۱۵ تا ۳۰ میلیون', en: '15M – 30M' }, value: '15000-30000' },
+  { label: { fa: 'بالای ۳۰ میلیون', en: 'Over 30M' }, value: '30000-999999' },
 ];
 
 export default function SearchAndFilter({ brands = [] }: { brands?: string[] }) {

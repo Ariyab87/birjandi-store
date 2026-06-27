@@ -83,9 +83,11 @@ export function getImageUrl(url: string, quality: 'full' | 'thumb' = 'thumb'): s
   return url;
 }
 
+// Prices are stored in thousands of tomans (e.g. 30400 = 30,400,000 تومان)
 export function formatPrice(price: number, locale: string): string {
+  const actual = price * 1000;
   if (locale === 'fa') {
-    return new Intl.NumberFormat('fa-IR').format(price) + ' تومان';
+    return new Intl.NumberFormat('fa-IR').format(actual) + ' تومان';
   }
-  return new Intl.NumberFormat('en-US').format(price);
+  return new Intl.NumberFormat('en-US').format(actual) + ' T';
 }
