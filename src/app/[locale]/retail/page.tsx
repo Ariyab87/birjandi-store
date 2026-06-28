@@ -1,10 +1,12 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { getProducts } from '@/lib/api';
 import ProductCard from '@/components/product/ProductCard';
 import SearchAndFilter from '@/components/retail/SearchAndFilter';
+import PromoStrip from '@/components/retail/PromoStrip';
 import { RETAIL_CATEGORIES } from '@/lib/utils';
 import { BASE_URL, hreflangAlternates, ogImages } from '@/lib/seo';
 
@@ -129,16 +131,11 @@ export default async function RetailPage({
                   : 'Over 30 years of experience — Delivery across Iran'}
               </p>
             </div>
-            {total > 0 && (
-              <div className="text-right shrink-0">
-                <p className="text-3xl font-bold text-gold-400">
-                  {fa ? new Intl.NumberFormat('fa-IR').format(total) : total}
-                </p>
-                <p className="text-white/60 text-xs mt-0.5">
-                  {fa ? 'محصول موجود' : 'products available'}
-                </p>
+            <div className="shrink-0">
+              <div className="w-16 h-16 rounded-full ring-2 ring-gold-500/50 overflow-hidden">
+                <Image src="/logo.png" alt="کالالند" width={64} height={64} className="w-full h-full object-cover" />
               </div>
-            )}
+            </div>
           </div>
         </div>
       </div>
@@ -175,6 +172,9 @@ export default async function RetailPage({
             </Link>
           ))}
         </div>
+
+        {/* Promo strip */}
+        <PromoStrip />
 
         {/* Result info bar */}
         {total > 0 && (

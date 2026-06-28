@@ -43,18 +43,13 @@ export default function ProductCard({ product, mode }: Props) {
         )}
 
         {/* Badges */}
-        <div className="absolute top-2 right-2 flex flex-col gap-1 items-end">
-          {product.featured && (
-            <span className="bg-gold-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow">
-              {locale === 'fa' ? 'ویژه' : 'Featured'}
-            </span>
-          )}
-          {!inStock && (
+        {!inStock && (
+          <div className="absolute top-2 right-2">
             <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow">
               {t('out_of_stock')}
             </span>
-          )}
-        </div>
+          </div>
+        )}
       </Link>
 
       {/* Info */}
