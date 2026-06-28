@@ -45,7 +45,7 @@ export default async function WholesaleBusinessPage({
 
   let products = { data: [] as Awaited<ReturnType<typeof getProducts>>['data'] };
   try {
-    products = await getProducts(filters);
+    products = await getProducts(filters, 1, 500);
   } catch {
     // Strapi not connected
   }

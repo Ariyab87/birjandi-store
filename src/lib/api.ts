@@ -38,11 +38,20 @@ export interface Product {
 
 interface StrapiList<T> {
   data: T[];
-  meta: { pagination: { total: number } };
+  meta: { pagination: { total: number; page: number; pageSize: number; pageCount: number } };
 }
 
-export async function getProducts(filters: Record<string, string> = {}): Promise<StrapiList<Product>> {
-  return fetchAPI<StrapiList<Product>>('/products', { populate: 'images', 'pagination[limit]': '500', ...filters });
+export async function getProducts(
+  filters: Record<string, string> = {},
+  page = 1,
+  pageSize = 20,
+): Promise<StrapiList<Product>> {
+  return fetchAPI<StrapiList<Product>>('/products', {
+    populate: 'images',
+    'pagination[page]': String(page),
+    'pagination[pageSize]': String(pageSize),
+    ...filters,
+  });
 }
 
 export async function getProduct(id: string): Promise<{ data: Product }> {

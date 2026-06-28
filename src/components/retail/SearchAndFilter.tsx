@@ -35,7 +35,8 @@ export default function SearchAndFilter({ brands = [] }: { brands?: string[] }) 
     if (q) sp.set('q', q);
     if (b) sp.set('brand', b);
     if (p) sp.set('price', p);
-    router.push(`/${locale}/retail?${sp.toString()}`);
+    // always reset to page 1 when filters change
+    router.push(`/${locale}/retail${sp.toString() ? `?${sp.toString()}` : ''}`);
   }
 
   function handleBrand(b: string) {
@@ -54,6 +55,7 @@ export default function SearchAndFilter({ brands = [] }: { brands?: string[] }) 
     setPrice('');
     const category = searchParams.get('category');
     router.push(`/${locale}/retail${category ? `?category=${category}` : ''}`);
+    // page resets to 1 automatically (no page param in URL)
   }
 
   const hasFilters = query || brand || price;

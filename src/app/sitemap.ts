@@ -35,7 +35,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   let productUrls: MetadataRoute.Sitemap = [];
   try {
-    const { data } = await getProducts();
+    const { data } = await getProducts({}, 1, 500);
     productUrls = data.map(p => entry(`retail/${p.category}/${p.documentId}`, 0.8));
   } catch { /* Strapi not available at build time */ }
 

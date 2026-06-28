@@ -32,16 +32,20 @@ export async function generateMetadata({ params: { locale } }: { params: { local
   };
 }
 
+const PAGE_SIZE = 20;
+
 export default async function RetailPage({
   params: { locale },
   searchParams,
 }: {
   params: { locale: string };
-  searchParams: { category?: string; brand?: string; q?: string; price?: string };
+  searchParams: { category?: string; brand?: string; q?: string; price?: string; page?: string };
 }) {
   setRequestLocale(locale);
   const t = await getTranslations('retail');
   const tCat = await getTranslations('categories');
+
+  const currentPage = Math.max(1, parseInt(searchParams.page || '1', 10));
 
   const filters: Record<string, string> = {};
   if (searchParams.category) filters['filters[category][$eq]'] = searchParams.category;
@@ -55,17 +59,17 @@ export default async function RetailPage({
     const [min, max] = searchParams.price.split('-');
     if (min) filters['filters[retail_price][$gte]'] = min;
     if (max) filters['filters[retail_price][$lte]'] = max;
-    // exclude price-on-request products from price filter results
     filters['filters[price_on_request][$eq]'] = 'false';
   }
 
-  let products = { data: [] as Awaited<ReturnType<typeof getProducts>>['data'] };
+  let products = {
+    data: [] as Awaited<ReturnType<typeof getProducts>>['data'],
+    meta: { pagination: { total: 0, page: 1, pageSize: PAGE_SIZE, pageCount: 1 } },
+  };
   let allBrands: string[] = [];
   try {
-    // Fetch filtered products for the grid
-    products = await getProducts(filters);
-    // Fetch ALL products (no filters) just to build the brand list
-    const allProducts = await getProducts();
+    products = await getProducts(filters, currentPage, PAGE_SIZE);
+    const allProducts = await getProducts({}, 1, 500);
     allBrands = Array.from(new Set(
       allProducts.data.map(p => p.brand).filter(Boolean)
     )).sort((a, b) => a.localeCompare(b, 'fa'));
@@ -74,6 +78,32 @@ export default async function RetailPage({
   }
 
   const fa = locale === 'fa';
+  const { total, pageCount } = products.meta.pagination;
+
+  function pageUrl(p: number) {
+    const sp = new URLSearchParams();
+    if (searchParams.category) sp.set('category', searchParams.category);
+    if (searchParams.brand) sp.set('brand', searchParams.brand);
+    if (searchParams.q) sp.set('q', searchParams.q);
+    if (searchParams.price) sp.set('price', searchParams.price);
+    if (p > 1) sp.set('page', String(p));
+    const qs = sp.toString();
+    return `/${locale}/retail${qs ? `?${qs}` : ''}`;
+  }
+
+  // Build visible page numbers (show at most 5 around current page)
+  function visiblePages(): number[] {
+    if (pageCount <= 7) return Array.from({ length: pageCount }, (_, i) => i + 1);
+    const pages: number[] = [];
+    const start = Math.max(2, currentPage - 2);
+    const end = Math.min(pageCount - 1, currentPage + 2);
+    pages.push(1);
+    if (start > 2) pages.push(-1); // ellipsis
+    for (let i = start; i <= end; i++) pages.push(i);
+    if (end < pageCount - 1) pages.push(-2); // ellipsis
+    pages.push(pageCount);
+    return pages;
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-10">
@@ -81,8 +111,8 @@ export default async function RetailPage({
         <h1 className="section-title mb-0">{t('title')}</h1>
         <span className="text-sm text-gray-400">
           {fa
-            ? `${products.data.length} محصول`
-            : products.data.length === 1 ? '1 product' : `${products.data.length} products`}
+            ? `${total} محصول`
+            : total === 1 ? '1 product' : `${total} products`}
         </span>
       </div>
 
@@ -135,6 +165,58 @@ export default async function RetailPage({
           {products.data.map((product) => (
             <ProductCard key={product.id} product={product} mode="retail" />
           ))}
+        </div>
+      )}
+
+      {/* Pagination */}
+      {pageCount > 1 && (
+        <div className="flex items-center justify-center gap-1 mt-10 flex-wrap">
+          {/* Prev */}
+          {currentPage > 1 ? (
+            <Link
+              href={pageUrl(currentPage - 1)}
+              className="px-3 py-2 rounded-lg border border-gray-300 text-sm hover:border-navy-500 hover:text-navy-700 transition-colors"
+            >
+              {fa ? '‹ قبلی' : '‹ Prev'}
+            </Link>
+          ) : (
+            <span className="px-3 py-2 rounded-lg border border-gray-100 text-sm text-gray-300">
+              {fa ? '‹ قبلی' : '‹ Prev'}
+            </span>
+          )}
+
+          {/* Page numbers */}
+          {visiblePages().map((p, i) =>
+            p < 0 ? (
+              <span key={`ellipsis-${i}`} className="px-2 py-2 text-gray-400 text-sm">…</span>
+            ) : (
+              <Link
+                key={p}
+                href={pageUrl(p)}
+                className={`w-9 h-9 flex items-center justify-center rounded-lg text-sm border transition-colors ${
+                  p === currentPage
+                    ? 'bg-navy-700 text-white border-navy-700 font-bold'
+                    : 'border-gray-300 hover:border-navy-500 hover:text-navy-700'
+                }`}
+              >
+                {fa ? new Intl.NumberFormat('fa-IR').format(p) : p}
+              </Link>
+            )
+          )}
+
+          {/* Next */}
+          {currentPage < pageCount ? (
+            <Link
+              href={pageUrl(currentPage + 1)}
+              className="px-3 py-2 rounded-lg border border-gray-300 text-sm hover:border-navy-500 hover:text-navy-700 transition-colors"
+            >
+              {fa ? 'بعدی ›' : 'Next ›'}
+            </Link>
+          ) : (
+            <span className="px-3 py-2 rounded-lg border border-gray-100 text-sm text-gray-300">
+              {fa ? 'بعدی ›' : 'Next ›'}
+            </span>
+          )}
         </div>
       )}
     </div>
