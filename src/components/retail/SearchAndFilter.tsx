@@ -12,6 +12,13 @@ const PRICE_RANGES = [
   { label: { fa: 'بالای ۳۰ میلیون', en: 'Over 30M' }, value: '30000-999999' },
 ];
 
+const SORT_OPTIONS = [
+  { label: { fa: 'مرتب‌سازی', en: 'Sort by' }, value: '' },
+  { label: { fa: 'ارزان‌ترین', en: 'Price: Low → High' }, value: 'retail_price:asc' },
+  { label: { fa: 'گران‌ترین', en: 'Price: High → Low' }, value: 'retail_price:desc' },
+  { label: { fa: 'جدیدترین', en: 'Newest' }, value: 'createdAt:desc' },
+];
+
 export default function SearchAndFilter({ brands = [] }: { brands?: string[] }) {
   const router = useRouter();
   const params = useParams();
@@ -22,43 +29,50 @@ export default function SearchAndFilter({ brands = [] }: { brands?: string[] }) 
   const [query, setQuery] = useState(searchParams.get('q') || '');
   const [brand, setBrand] = useState(searchParams.get('brand') || '');
   const [price, setPrice] = useState(searchParams.get('price') || '');
+  const [sort, setSort] = useState(searchParams.get('sort') || '');
 
   useEffect(() => {
-    const timeout = setTimeout(() => applyFilters(query, brand, price), 400);
+    const timeout = setTimeout(() => applyFilters(query, brand, price, sort), 400);
     return () => clearTimeout(timeout);
   }, [query]);
 
-  function applyFilters(q: string, b: string, p: string) {
+  function applyFilters(q: string, b: string, p: string, s: string) {
     const sp = new URLSearchParams();
     const category = searchParams.get('category');
     if (category) sp.set('category', category);
     if (q) sp.set('q', q);
     if (b) sp.set('brand', b);
     if (p) sp.set('price', p);
+    if (s) sp.set('sort', s);
     // always reset to page 1 when filters change
     router.push(`/${locale}/retail${sp.toString() ? `?${sp.toString()}` : ''}`);
   }
 
   function handleBrand(b: string) {
     setBrand(b);
-    applyFilters(query, b, price);
+    applyFilters(query, b, price, sort);
   }
 
   function handlePrice(p: string) {
     setPrice(p);
-    applyFilters(query, brand, p);
+    applyFilters(query, brand, p, sort);
+  }
+
+  function handleSort(s: string) {
+    setSort(s);
+    applyFilters(query, brand, price, s);
   }
 
   function clearAll() {
     setQuery('');
     setBrand('');
     setPrice('');
+    setSort('');
     const category = searchParams.get('category');
     router.push(`/${locale}/retail${category ? `?category=${category}` : ''}`);
-    // page resets to 1 automatically (no page param in URL)
   }
 
-  const hasFilters = query || brand || price;
+  const hasFilters = query || brand || price || sort;
 
   return (
     <div className="mb-6 space-y-3">
@@ -68,19 +82,19 @@ export default function SearchAndFilter({ brands = [] }: { brands?: string[] }) 
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder={fa ? 'جستجوی محصول...' : 'Search products...'}
-          className="w-full border border-gray-300 rounded-xl px-4 py-3 pr-10 text-sm focus:outline-none focus:border-navy-500 focus:ring-1 focus:ring-navy-500"
+          placeholder={fa ? 'جستجوی محصول، برند...' : 'Search products, brands...'}
+          className="w-full border border-gray-200 rounded-xl px-4 py-3 pr-11 text-sm focus:outline-none focus:border-navy-500 focus:ring-1 focus:ring-navy-500 bg-white shadow-sm"
         />
-        <span className="absolute top-3 right-3 text-gray-400 text-lg">🔍</span>
+        <span className="absolute top-3 right-3.5 text-gray-400 text-lg">🔍</span>
       </div>
 
-      {/* Brand + Price filters */}
-      <div className="flex flex-wrap gap-3 items-center">
+      {/* Filters row */}
+      <div className="flex flex-wrap gap-2 items-center">
         {/* Brand dropdown */}
         <select
           value={brand}
           onChange={(e) => handleBrand(e.target.value)}
-          className="flex-1 sm:flex-none border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:border-navy-500 bg-white"
+          className="border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-navy-500 bg-white shadow-sm"
         >
           <option value="">{fa ? 'همه برندها' : 'All brands'}</option>
           {brands.map((b) => (
@@ -92,9 +106,22 @@ export default function SearchAndFilter({ brands = [] }: { brands?: string[] }) 
         <select
           value={price}
           onChange={(e) => handlePrice(e.target.value)}
-          className="flex-1 sm:flex-none border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:border-navy-500 bg-white"
+          className="border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-navy-500 bg-white shadow-sm"
         >
           {PRICE_RANGES.map((r) => (
+            <option key={r.value} value={r.value}>
+              {fa ? r.label.fa : r.label.en}
+            </option>
+          ))}
+        </select>
+
+        {/* Sort dropdown */}
+        <select
+          value={sort}
+          onChange={(e) => handleSort(e.target.value)}
+          className="border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-navy-500 bg-white shadow-sm"
+        >
+          {SORT_OPTIONS.map((r) => (
             <option key={r.value} value={r.value}>
               {fa ? r.label.fa : r.label.en}
             </option>
@@ -105,26 +132,31 @@ export default function SearchAndFilter({ brands = [] }: { brands?: string[] }) 
         {hasFilters && (
           <button
             onClick={clearAll}
-            className="text-sm text-red-500 hover:text-red-700 underline"
+            className="text-sm text-red-400 hover:text-red-600 flex items-center gap-1 transition-colors"
           >
-            {fa ? 'پاک کردن فیلترها' : 'Clear filters'}
+            <span className="text-base leading-none">×</span>
+            {fa ? 'پاک کردن' : 'Clear'}
           </button>
         )}
-
-        {/* Active filter tags */}
-        {brand && (
-          <span className="bg-navy-100 text-navy-700 text-xs px-3 py-1 rounded-full flex items-center gap-1">
-            {brand}
-            <button onClick={() => handleBrand('')} className="font-bold">×</button>
-          </span>
-        )}
-        {query && (
-          <span className="bg-gold-100 text-gold-700 text-xs px-3 py-1 rounded-full flex items-center gap-1">
-            "{query}"
-            <button onClick={() => setQuery('')} className="font-bold">×</button>
-          </span>
-        )}
       </div>
+
+      {/* Active filter tags */}
+      {(brand || query) && (
+        <div className="flex flex-wrap gap-2">
+          {brand && (
+            <span className="bg-navy-700 text-white text-xs px-3 py-1 rounded-full flex items-center gap-1.5">
+              {brand}
+              <button onClick={() => handleBrand('')} className="text-white/70 hover:text-white font-bold leading-none">×</button>
+            </span>
+          )}
+          {query && (
+            <span className="bg-gold-500 text-white text-xs px-3 py-1 rounded-full flex items-center gap-1.5">
+              "{query}"
+              <button onClick={() => setQuery('')} className="text-white/70 hover:text-white font-bold leading-none">×</button>
+            </span>
+          )}
+        </div>
+      )}
     </div>
   );
 }

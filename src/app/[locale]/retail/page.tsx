@@ -39,7 +39,7 @@ export default async function RetailPage({
   searchParams,
 }: {
   params: { locale: string };
-  searchParams: { category?: string; brand?: string; q?: string; price?: string; page?: string };
+  searchParams: { category?: string; brand?: string; q?: string; price?: string; page?: string; sort?: string };
 }) {
   setRequestLocale(locale);
   const t = await getTranslations('retail');
@@ -61,6 +61,9 @@ export default async function RetailPage({
     if (max) filters['filters[retail_price][$lte]'] = max;
     filters['filters[price_on_request][$eq]'] = 'false';
   }
+  if (searchParams.sort) {
+    filters['sort'] = searchParams.sort;
+  }
 
   let products = {
     data: [] as Awaited<ReturnType<typeof getProducts>>['data'],
@@ -79,6 +82,8 @@ export default async function RetailPage({
 
   const fa = locale === 'fa';
   const { total, pageCount } = products.meta.pagination;
+  const fromItem = (currentPage - 1) * PAGE_SIZE + 1;
+  const toItem = Math.min(currentPage * PAGE_SIZE, total);
 
   function pageUrl(p: number) {
     const sp = new URLSearchParams();
@@ -86,139 +91,172 @@ export default async function RetailPage({
     if (searchParams.brand) sp.set('brand', searchParams.brand);
     if (searchParams.q) sp.set('q', searchParams.q);
     if (searchParams.price) sp.set('price', searchParams.price);
+    if (searchParams.sort) sp.set('sort', searchParams.sort);
     if (p > 1) sp.set('page', String(p));
     const qs = sp.toString();
     return `/${locale}/retail${qs ? `?${qs}` : ''}`;
   }
 
-  // Build visible page numbers (show at most 5 around current page)
   function visiblePages(): number[] {
     if (pageCount <= 7) return Array.from({ length: pageCount }, (_, i) => i + 1);
     const pages: number[] = [];
     const start = Math.max(2, currentPage - 2);
     const end = Math.min(pageCount - 1, currentPage + 2);
     pages.push(1);
-    if (start > 2) pages.push(-1); // ellipsis
+    if (start > 2) pages.push(-1);
     for (let i = start; i <= end; i++) pages.push(i);
-    if (end < pageCount - 1) pages.push(-2); // ellipsis
+    if (end < pageCount - 1) pages.push(-2);
     pages.push(pageCount);
     return pages;
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-10">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="section-title mb-0">{t('title')}</h1>
-        <span className="text-sm text-gray-400">
-          {fa
-            ? `${total} محصول`
-            : total === 1 ? '1 product' : `${total} products`}
-        </span>
+    <div className="min-h-screen bg-gray-50">
+      {/* Hero banner */}
+      <div className="bg-gradient-to-l from-navy-800 to-navy-900 text-white py-8 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div>
+              <p className="text-gold-400 text-xs font-medium mb-1 tracking-widest uppercase">
+                {fa ? 'کالالند' : 'Kalaland'}
+              </p>
+              <h1 className="text-2xl md:text-3xl font-bold">
+                {fa ? 'فروشگاه لوازم خانگی' : 'Home Appliances Store'}
+              </h1>
+              <p className="text-white/60 text-sm mt-1">
+                {fa
+                  ? 'بیش از ۳۰ سال تجربه — ارسال به سراسر ایران'
+                  : 'Over 30 years of experience — Delivery across Iran'}
+              </p>
+            </div>
+            {total > 0 && (
+              <div className="text-right shrink-0">
+                <p className="text-3xl font-bold text-gold-400">
+                  {fa ? new Intl.NumberFormat('fa-IR').format(total) : total}
+                </p>
+                <p className="text-white/60 text-xs mt-0.5">
+                  {fa ? 'محصول موجود' : 'products available'}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
-      {/* Search & Filters */}
-      <Suspense fallback={null}>
-        <SearchAndFilter brands={allBrands} />
-      </Suspense>
+      <div className="max-w-7xl mx-auto px-4 py-6">
+        {/* Search & Filters */}
+        <Suspense fallback={null}>
+          <SearchAndFilter brands={allBrands} />
+        </Suspense>
 
-      {/* Category tabs — horizontal scroll on mobile */}
-      <div className="flex gap-2 overflow-x-auto flex-nowrap mb-8 pb-4 border-b border-gray-100 scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0 md:flex-wrap">
-        <Link
-          href={`/${locale}/retail`}
-          className={`px-4 py-2 rounded-full text-sm border transition-colors ${
-            !searchParams.category
-              ? 'bg-navy-700 text-white border-navy-700'
-              : 'border-gray-300 hover:border-navy-500'
-          }`}
-        >
-          {t('all_products')}
-        </Link>
-        {RETAIL_CATEGORIES.map((cat) => (
+        {/* Category tabs */}
+        <div className="flex gap-2 overflow-x-auto flex-nowrap mb-6 pb-3 scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0 md:flex-wrap">
           <Link
-            key={cat.key}
-            href={`/${locale}/retail?category=${cat.key}`}
-            className={`px-4 py-2 rounded-full text-sm border transition-colors ${
-              searchParams.category === cat.key
-                ? 'bg-navy-700 text-white border-navy-700'
-                : 'border-gray-300 hover:border-navy-500'
+            href={`/${locale}/retail`}
+            className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium border transition-all ${
+              !searchParams.category
+                ? 'bg-navy-700 text-white border-navy-700 shadow-sm'
+                : 'border-gray-300 bg-white hover:border-navy-400 hover:text-navy-700'
             }`}
           >
-            {cat.icon} {tCat(cat.key)}
+            {t('all_products')}
           </Link>
-        ))}
-      </div>
-
-      {/* Product grid */}
-      {products.data.length === 0 ? (
-        <div className="text-center py-24 text-gray-400">
-          <p className="text-5xl mb-4">🔍</p>
-          <p className="font-medium">{fa ? 'محصولی یافت نشد' : 'No products found'}</p>
-          <p className="text-sm mt-2">
-            {fa ? 'فیلترها را تغییر دهید یا جستجو را پاک کنید' : 'Try changing the filters or clearing the search'}
-          </p>
-          <Link href={`/${locale}/retail`} className="inline-block mt-4 btn-primary text-sm">
-            {fa ? 'نمایش همه محصولات' : 'Show all products'}
-          </Link>
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {products.data.map((product) => (
-            <ProductCard key={product.id} product={product} mode="retail" />
+          {RETAIL_CATEGORIES.map((cat) => (
+            <Link
+              key={cat.key}
+              href={`/${locale}/retail?category=${cat.key}`}
+              className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium border transition-all ${
+                searchParams.category === cat.key
+                  ? 'bg-navy-700 text-white border-navy-700 shadow-sm'
+                  : 'border-gray-300 bg-white hover:border-navy-400 hover:text-navy-700'
+              }`}
+            >
+              {cat.icon} {tCat(cat.key)}
+            </Link>
           ))}
         </div>
-      )}
 
-      {/* Pagination */}
-      {pageCount > 1 && (
-        <div className="flex items-center justify-center gap-1 mt-10 flex-wrap">
-          {/* Prev */}
-          {currentPage > 1 ? (
-            <Link
-              href={pageUrl(currentPage - 1)}
-              className="px-3 py-2 rounded-lg border border-gray-300 text-sm hover:border-navy-500 hover:text-navy-700 transition-colors"
-            >
-              {fa ? '‹ قبلی' : '‹ Prev'}
-            </Link>
-          ) : (
-            <span className="px-3 py-2 rounded-lg border border-gray-100 text-sm text-gray-300">
-              {fa ? '‹ قبلی' : '‹ Prev'}
+        {/* Result info bar */}
+        {total > 0 && (
+          <div className="flex items-center justify-between mb-4 text-sm text-gray-500">
+            <span>
+              {fa
+                ? `نمایش ${new Intl.NumberFormat('fa-IR').format(fromItem)} تا ${new Intl.NumberFormat('fa-IR').format(toItem)} از ${new Intl.NumberFormat('fa-IR').format(total)} محصول`
+                : `Showing ${fromItem}–${toItem} of ${total} products`}
             </span>
-          )}
+            {pageCount > 1 && (
+              <span className="text-xs">
+                {fa
+                  ? `صفحه ${new Intl.NumberFormat('fa-IR').format(currentPage)} از ${new Intl.NumberFormat('fa-IR').format(pageCount)}`
+                  : `Page ${currentPage} of ${pageCount}`}
+              </span>
+            )}
+          </div>
+        )}
 
-          {/* Page numbers */}
-          {visiblePages().map((p, i) =>
-            p < 0 ? (
-              <span key={`ellipsis-${i}`} className="px-2 py-2 text-gray-400 text-sm">…</span>
-            ) : (
-              <Link
-                key={p}
-                href={pageUrl(p)}
-                className={`w-9 h-9 flex items-center justify-center rounded-lg text-sm border transition-colors ${
-                  p === currentPage
-                    ? 'bg-navy-700 text-white border-navy-700 font-bold'
-                    : 'border-gray-300 hover:border-navy-500 hover:text-navy-700'
-                }`}
-              >
-                {fa ? new Intl.NumberFormat('fa-IR').format(p) : p}
+        {/* Product grid */}
+        {products.data.length === 0 ? (
+          <div className="text-center py-24 text-gray-400 bg-white rounded-2xl border border-gray-100">
+            <p className="text-5xl mb-4">🔍</p>
+            <p className="font-medium text-gray-600">{fa ? 'محصولی یافت نشد' : 'No products found'}</p>
+            <p className="text-sm mt-2">
+              {fa ? 'فیلترها را تغییر دهید یا جستجو را پاک کنید' : 'Try changing the filters or clearing the search'}
+            </p>
+            <Link href={`/${locale}/retail`} className="inline-block mt-5 bg-navy-700 text-white text-sm px-5 py-2.5 rounded-xl hover:bg-navy-800 transition-colors">
+              {fa ? 'نمایش همه محصولات' : 'Show all products'}
+            </Link>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
+            {products.data.map((product) => (
+              <ProductCard key={product.id} product={product} mode="retail" />
+            ))}
+          </div>
+        )}
+
+        {/* Pagination */}
+        {pageCount > 1 && (
+          <div className="flex items-center justify-center gap-1.5 mt-10 flex-wrap">
+            {currentPage > 1 ? (
+              <Link href={pageUrl(currentPage - 1)} className="px-3 py-2 rounded-lg bg-white border border-gray-200 text-sm hover:border-navy-500 hover:text-navy-700 transition-colors shadow-sm">
+                {fa ? '‹ قبلی' : '‹ Prev'}
               </Link>
-            )
-          )}
+            ) : (
+              <span className="px-3 py-2 rounded-lg border border-gray-100 text-sm text-gray-300 bg-white">
+                {fa ? '‹ قبلی' : '‹ Prev'}
+              </span>
+            )}
 
-          {/* Next */}
-          {currentPage < pageCount ? (
-            <Link
-              href={pageUrl(currentPage + 1)}
-              className="px-3 py-2 rounded-lg border border-gray-300 text-sm hover:border-navy-500 hover:text-navy-700 transition-colors"
-            >
-              {fa ? 'بعدی ›' : 'Next ›'}
-            </Link>
-          ) : (
-            <span className="px-3 py-2 rounded-lg border border-gray-100 text-sm text-gray-300">
-              {fa ? 'بعدی ›' : 'Next ›'}
-            </span>
-          )}
-        </div>
-      )}
+            {visiblePages().map((p, i) =>
+              p < 0 ? (
+                <span key={`ellipsis-${i}`} className="px-2 py-2 text-gray-400 text-sm">…</span>
+              ) : (
+                <Link
+                  key={p}
+                  href={pageUrl(p)}
+                  className={`w-9 h-9 flex items-center justify-center rounded-lg text-sm border transition-colors shadow-sm ${
+                    p === currentPage
+                      ? 'bg-navy-700 text-white border-navy-700 font-bold'
+                      : 'bg-white border-gray-200 hover:border-navy-500 hover:text-navy-700'
+                  }`}
+                >
+                  {fa ? new Intl.NumberFormat('fa-IR').format(p) : p}
+                </Link>
+              )
+            )}
+
+            {currentPage < pageCount ? (
+              <Link href={pageUrl(currentPage + 1)} className="px-3 py-2 rounded-lg bg-white border border-gray-200 text-sm hover:border-navy-500 hover:text-navy-700 transition-colors shadow-sm">
+                {fa ? 'بعدی ›' : 'Next ›'}
+              </Link>
+            ) : (
+              <span className="px-3 py-2 rounded-lg border border-gray-100 text-sm text-gray-300 bg-white">
+                {fa ? 'بعدی ›' : 'Next ›'}
+              </span>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
