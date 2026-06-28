@@ -7,6 +7,7 @@ import { getProducts } from '@/lib/api';
 import ProductCard from '@/components/product/ProductCard';
 import SearchAndFilter from '@/components/retail/SearchAndFilter';
 import PromoStrip from '@/components/retail/PromoStrip';
+import VideoReel from '@/components/retail/VideoReel';
 import { RETAIL_CATEGORIES } from '@/lib/utils';
 import { BASE_URL, hreflangAlternates, ogImages } from '@/lib/seo';
 
@@ -172,6 +173,9 @@ export default async function RetailPage({
             </Link>
           ))}
         </div>
+
+        {/* Video reel */}
+        <VideoReel />
 
         {/* Promo strip */}
         <PromoStrip />

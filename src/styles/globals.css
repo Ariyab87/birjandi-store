@@ -41,6 +41,11 @@
   100% { transform: translateX(-50%); }
 }
 
+@keyframes progress-bar {
+  0%   { width: 0%; }
+  100% { width: 100%; }
+}
+
 .ticker-wrap {
   overflow: hidden;
   direction: ltr;
