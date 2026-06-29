@@ -114,24 +114,22 @@ export default async function RetailPage({
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero banner */}
-      <div className="bg-gradient-to-l from-navy-800 to-navy-900 text-white py-8 px-4">
+      <div className="bg-gradient-to-l from-navy-800 to-navy-900 text-white py-6 px-4">
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <div>
+          <div className={`flex items-center justify-between gap-3 ${fa ? 'flex-row-reverse' : ''}`}>
+            <div className={fa ? 'text-right' : 'text-left'}>
               <p className="text-gold-400 text-xs font-medium mb-1 tracking-widest uppercase">
-                {fa ? 'کالالند' : 'Kalaland'}
+                {fa ? 'کالالند ۲۴' : 'Kalaland 24'}
               </p>
-              <h1 className="text-2xl md:text-3xl font-bold">
+              <h1 className="text-xl md:text-3xl font-bold leading-tight">
                 {fa ? 'فروشگاه لوازم خانگی' : 'Home Appliances Store'}
               </h1>
-              <p className="text-white/60 text-sm mt-1">
-                {fa
-                  ? 'بیش از ۳۰ سال تجربه — ارسال به سراسر ایران'
-                  : 'Over 30 years of experience — Delivery across Iran'}
+              <p className="text-white/60 text-xs md:text-sm mt-1">
+                {fa ? 'بیش از ۳۰ سال تجربه — ارسال به سراسر ایران' : 'Over 30 years of experience — Delivery across Iran'}
               </p>
             </div>
             <div className="shrink-0">
-              <div className="w-16 h-16 rounded-full ring-2 ring-gold-500/50 overflow-hidden">
+              <div className="w-12 h-12 md:w-16 md:h-16 rounded-full ring-2 ring-gold-500/50 overflow-hidden">
                 <Image src="/logo.png" alt="کالالند" width={64} height={64} className="w-full h-full object-cover" />
               </div>
             </div>
@@ -139,7 +137,7 @@ export default async function RetailPage({
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-6">
+      <div className="max-w-7xl mx-auto px-3 md:px-4 py-4 md:py-6">
         {/* Search & Filters */}
         <Suspense fallback={null}>
           <SearchAndFilter brands={allBrands} />

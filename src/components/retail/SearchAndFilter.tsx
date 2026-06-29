@@ -88,13 +88,13 @@ export default function SearchAndFilter({ brands = [] }: { brands?: string[] }) 
         <span className="absolute top-3 right-3.5 text-gray-400 text-lg">🔍</span>
       </div>
 
-      {/* Filters row */}
-      <div className="flex flex-wrap gap-2 items-center">
+      {/* Filters row — 2 cols on mobile, auto on desktop */}
+      <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 items-center">
         {/* Brand dropdown */}
         <select
           value={brand}
           onChange={(e) => handleBrand(e.target.value)}
-          className="border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-navy-500 bg-white shadow-sm"
+          className="w-full sm:w-auto border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-navy-500 bg-white shadow-sm"
         >
           <option value="">{fa ? 'همه برندها' : 'All brands'}</option>
           {brands.map((b) => (
@@ -106,7 +106,7 @@ export default function SearchAndFilter({ brands = [] }: { brands?: string[] }) 
         <select
           value={price}
           onChange={(e) => handlePrice(e.target.value)}
-          className="border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-navy-500 bg-white shadow-sm"
+          className="w-full sm:w-auto border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-navy-500 bg-white shadow-sm"
         >
           {PRICE_RANGES.map((r) => (
             <option key={r.value} value={r.value}>
@@ -119,7 +119,7 @@ export default function SearchAndFilter({ brands = [] }: { brands?: string[] }) 
         <select
           value={sort}
           onChange={(e) => handleSort(e.target.value)}
-          className="border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-navy-500 bg-white shadow-sm"
+          className="w-full sm:w-auto col-span-2 border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-navy-500 bg-white shadow-sm"
         >
           {SORT_OPTIONS.map((r) => (
             <option key={r.value} value={r.value}>
@@ -132,10 +132,10 @@ export default function SearchAndFilter({ brands = [] }: { brands?: string[] }) 
         {hasFilters && (
           <button
             onClick={clearAll}
-            className="text-sm text-red-400 hover:text-red-600 flex items-center gap-1 transition-colors"
+            className="col-span-2 sm:col-span-1 text-sm text-red-400 hover:text-red-600 flex items-center justify-center sm:justify-start gap-1 transition-colors py-2 sm:py-0"
           >
             <span className="text-base leading-none">×</span>
-            {fa ? 'پاک کردن' : 'Clear'}
+            {fa ? 'پاک کردن فیلترها' : 'Clear filters'}
           </button>
         )}
       </div>

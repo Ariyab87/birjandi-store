@@ -33,14 +33,10 @@ export default function PromoStrip() {
   const doubled = [...items, ...items];
 
   return (
-    <div className="overflow-hidden bg-navy-900 rounded-xl mb-6 py-3 select-none">
+    <div className="overflow-hidden bg-navy-900 rounded-xl mb-6 py-3 select-none" dir="ltr">
       <div
         className="flex gap-8 w-max"
-        style={{
-          animation: locale === 'fa'
-            ? 'marquee-rtl 28s linear infinite'
-            : 'marquee-ltr 28s linear infinite',
-        }}
+        style={{ animation: 'marquee-ltr 28s linear infinite' }}
       >
         {doubled.map((item, i) => (
           <span key={i} className="flex items-center gap-2 text-white/80 text-sm whitespace-nowrap px-2">
