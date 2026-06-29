@@ -104,8 +104,8 @@ export default function VideoReel() {
             </h2>
             <p className="text-gray-500 text-sm mt-2 leading-relaxed">
               {fa
-                ? 'از ظروف آشپزخانه تا لوازم برقی حرفه‌ای — بیش از ۱۲۶ محصول با بهترین قیمت، ارسال سریع به سراسر ایران'
-                : 'From cookware to professional appliances — 126+ products at the best prices, fast delivery across Iran'}
+                ? 'از ظروف آشپزخانه تا لوازم برقی حرفه‌ای — با بهترین قیمت، ارسال سریع به سراسر ایران'
+                : 'From cookware to professional appliances — best prices, fast delivery across Iran'}
             </p>
           </div>
 
@@ -132,12 +132,12 @@ export default function VideoReel() {
               <div className="w-9 h-9 rounded-xl bg-navy-50 border border-navy-100 flex items-center justify-center text-base shrink-0">💬</div>
               <div className={fa ? 'text-right' : 'text-left'}>
                 <p className="font-semibold text-navy-700 text-sm">
-                  {fa ? 'دستیار هوشمند کالالند۲۴' : 'Kalaland24 Smart Assistant'}
+                  {fa ? 'دستیار هوشمند کالالند' : 'Kalaland Smart Assistant'}
                 </p>
                 <p className="text-gray-400 text-xs mt-0.5 leading-relaxed">
                   {fa
-                    ? 'روی آیکون چت کلیک کنید و نام محصول، برند یا بودجه خود را بنویسید — دستیار هوشمند کیا فوری پاسخ می‌دهد و بهترین گزینه را پیشنهاد می‌دهد'
-                    : 'Click the chat icon and type the product name, brand, or your budget — Kia instantly replies and suggests the best option'}
+                    ? 'روی آیکون چت کلیک کنید و نام محصول، برند یا بودجه خود را بنویسید — دستیار هوشمند کالالند فوری پاسخ می‌دهد و بهترین گزینه را پیشنهاد می‌دهد'
+                    : 'Click the chat icon and type the product name, brand, or your budget — Kalaland assistant instantly replies and suggests the best option'}
                 </p>
               </div>
             </div>

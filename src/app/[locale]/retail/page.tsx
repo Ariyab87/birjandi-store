@@ -84,9 +84,7 @@ export default async function RetailPage({
   }
 
   const fa = locale === 'fa';
-  const { total, pageCount } = products.meta.pagination;
-  const fromItem = (currentPage - 1) * PAGE_SIZE + 1;
-  const toItem = Math.min(currentPage * PAGE_SIZE, total);
+  const { pageCount } = products.meta.pagination;
 
   function pageUrl(p: number) {
     const sp = new URLSearchParams();
@@ -177,23 +175,6 @@ export default async function RetailPage({
         {/* Video reel */}
         <VideoReel />
 
-        {/* Result info bar */}
-        {total > 0 && (
-          <div className="flex items-center justify-between mb-4 text-sm text-gray-500">
-            <span>
-              {fa
-                ? `نمایش ${new Intl.NumberFormat('fa-IR').format(fromItem)} تا ${new Intl.NumberFormat('fa-IR').format(toItem)} از ${new Intl.NumberFormat('fa-IR').format(total)} محصول`
-                : `Showing ${fromItem}–${toItem} of ${total} products`}
-            </span>
-            {pageCount > 1 && (
-              <span className="text-xs">
-                {fa
-                  ? `صفحه ${new Intl.NumberFormat('fa-IR').format(currentPage)} از ${new Intl.NumberFormat('fa-IR').format(pageCount)}`
-                  : `Page ${currentPage} of ${pageCount}`}
-              </span>
-            )}
-          </div>
-        )}
 
         {/* Product grid */}
         {products.data.length === 0 ? (
