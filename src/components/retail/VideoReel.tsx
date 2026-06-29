@@ -46,52 +46,46 @@ export default function VideoReel() {
     <div className="mb-6 rounded-2xl overflow-hidden border border-gray-100 shadow-sm bg-white">
       <div className={`flex flex-col md:flex-row ${fa ? 'md:flex-row-reverse' : ''}`}>
 
-        {/* Video box — 220px tall on mobile, square on desktop */}
-        <div
-          className="relative w-full md:w-1/2 shrink-0 bg-black overflow-hidden"
-          style={{ height: '220px' }}
-        >
-          <style>{`@media (min-width: 768px) { .vr-box { height: auto !important; aspect-ratio: 1 / 1; } }`}</style>
-          <div className="vr-box absolute inset-0" style={{ height: '220px' }}>
-            {SLIDES.map((s, i) => (
-              <video
-                key={s.src}
-                ref={el => { videoRefs.current[i] = el; }}
-                src={s.src}
-                muted
-                loop
-                playsInline
-                preload={i === 0 ? 'auto' : 'none'}
-                className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
-                style={{ opacity: i === current ? 1 : 0 }}
+        {/* Video box — fixed height on mobile, stretches with info panel on desktop */}
+        <div className="relative w-full md:w-1/2 shrink-0 bg-black overflow-hidden h-56 md:h-auto md:min-h-[380px]">
+          {SLIDES.map((s, i) => (
+            <video
+              key={s.src}
+              ref={el => { videoRefs.current[i] = el; }}
+              src={s.src}
+              muted
+              loop
+              playsInline
+              preload={i === 0 ? 'auto' : 'none'}
+              className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
+              style={{ opacity: i === current ? 1 : 0 }}
+            />
+          ))}
+
+          {/* Slide label */}
+          <div className="absolute top-3 right-3 bg-black/50 backdrop-blur-sm text-white text-xs px-3 py-1 rounded-full z-10">
+            {fa ? SLIDES[current].label.fa : SLIDES[current].label.en}
+          </div>
+
+          {/* Dots */}
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+            {SLIDES.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrent(i)}
+                className="rounded-full transition-all duration-300"
+                style={{
+                  width: i === current ? 22 : 8,
+                  height: 8,
+                  background: i === current ? '#d4a017' : 'rgba(255,255,255,0.5)',
+                }}
               />
             ))}
+          </div>
 
-            {/* Slide label */}
-            <div className="absolute top-3 right-3 bg-black/50 backdrop-blur-sm text-white text-xs px-3 py-1 rounded-full z-10">
-              {fa ? SLIDES[current].label.fa : SLIDES[current].label.en}
-            </div>
-
-            {/* Dots */}
-            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2 z-10">
-              {SLIDES.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setCurrent(i)}
-                  className="rounded-full transition-all duration-300"
-                  style={{
-                    width: i === current ? 22 : 8,
-                    height: 8,
-                    background: i === current ? '#d4a017' : 'rgba(255,255,255,0.5)',
-                  }}
-                />
-              ))}
-            </div>
-
-            {/* Progress bar */}
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white/10">
-              <div key={current} className="h-full bg-gold-500" style={{ animation: `progress-bar ${DURATION}ms linear forwards` }} />
-            </div>
+          {/* Progress bar */}
+          <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white/10">
+            <div key={current} className="h-full bg-gold-500" style={{ animation: `progress-bar ${DURATION}ms linear forwards` }} />
           </div>
         </div>
 
