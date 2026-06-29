@@ -5,17 +5,17 @@ import { useParams } from 'next/navigation';
 
 const SLIDES = [
   {
-    src: '/videos/kitchen1.mp4',
+    src: 'https://res.cloudinary.com/diyqjjbgb/video/upload/v1782715469/kitchen1_adky8x.mp4',
     label: { fa: 'آشپزخانه لاکچری', en: 'Luxury Kitchen' },
     sub: { fa: 'تجهیز آشپزخانه با بهترین برندها', en: 'Equip your kitchen with top brands' },
   },
   {
-    src: '/videos/cafe.mp4',
+    src: 'https://res.cloudinary.com/diyqjjbgb/video/upload/v1782715451/cafe_ebdg2q.mp4',
     label: { fa: 'کافه و رستوران', en: 'Café & Restaurant' },
     sub: { fa: 'ظروف حرفه‌ای برای کسب‌وکار شما', en: 'Professional cookware for your business' },
   },
   {
-    src: '/videos/kitchen2.mp4',
+    src: 'https://res.cloudinary.com/diyqjjbgb/video/upload/v1782715487/kitchen2_um6khj.mp4',
     label: { fa: 'آشپزخانه مدرن', en: 'Modern Kitchen' },
     sub: { fa: 'سبک زندگی متفاوت با کالالند', en: 'A different lifestyle with Kalaland' },
   },
