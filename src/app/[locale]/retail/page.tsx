@@ -177,9 +177,6 @@ export default async function RetailPage({
         {/* Video reel */}
         <VideoReel />
 
-        {/* Promo strip */}
-        <PromoStrip />
-
         {/* Result info bar */}
         {total > 0 && (
           <div className="flex items-center justify-between mb-4 text-sm text-gray-500">
@@ -260,6 +257,11 @@ export default async function RetailPage({
             )}
           </div>
         )}
+
+        {/* Promo strip — after pagination */}
+        <div className="mt-8">
+          <PromoStrip />
+        </div>
       </div>
     </div>
   );
