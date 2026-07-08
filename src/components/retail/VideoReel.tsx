@@ -94,7 +94,7 @@ export default function VideoReel() {
 
           <div>
             <p className="text-gold-500 text-xs font-semibold tracking-widest uppercase mb-1.5">
-              {fa ? 'کالالند ۲۴' : 'Kalaland 24'}
+              {fa ? 'کالالند۲۴ ۲۴' : 'Kalaland24 24'}
             </p>
             <h2 className="text-navy-800 text-lg md:text-2xl font-bold leading-snug">
               {fa ? 'لوازم خانگی و برقی برای کسب‌وکار و خانه' : 'Home & Commercial Appliances'}
@@ -122,7 +122,7 @@ export default function VideoReel() {
             <div className={`flex items-start gap-3 ${fa ? 'flex-row-reverse' : ''}`}>
               <div className="w-8 h-8 rounded-xl bg-navy-50 border border-navy-100 flex items-center justify-center text-sm shrink-0">💬</div>
               <div className={fa ? 'text-right' : 'text-left'}>
-                <p className="font-semibold text-navy-700 text-sm">{fa ? 'دستیار هوشمند کالالند' : 'Kalaland Smart Assistant'}</p>
+                <p className="font-semibold text-navy-700 text-sm">{fa ? 'دستیار هوشمند کالالند۲۴' : 'Kalaland24 Smart Assistant'}</p>
                 <p className="text-gray-400 text-xs mt-0.5 leading-relaxed">
                   {fa
                     ? 'روی آیکون چت کلیک کنید، نام محصول یا بودجه بنویسید — دستیار فوری پاسخ می‌دهد'
@@ -138,7 +138,6 @@ export default function VideoReel() {
                 <p className="font-semibold text-navy-700 text-sm">{fa ? 'پشتیبانی ۲۴ ساعته' : '24/7 Support'}</p>
                 <div className="flex flex-col gap-0.5 mt-0.5" dir="ltr" style={{ textAlign: 'left' }}>
                   <span className="text-gray-500 text-xs font-mono">+98 993 464 2455</span>
-                  <span className="text-gray-500 text-xs font-mono">+98 913 144 4021</span>
                 </div>
               </div>
             </div>

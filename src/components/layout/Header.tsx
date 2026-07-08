@@ -32,7 +32,7 @@ export default function Header() {
   const navLinks = [
     { href: `/${locale}`,                  label: t('home') },
     { href: `/${locale}#about`,            label: locale === 'fa' ? 'درباره ما' : 'About Us' },
-    { href: `/${locale}#featured`,         label: locale === 'fa' ? 'محصولات ویژه' : 'Featured Products' },
+    { href: `/${locale}#featured`,         label: locale === 'fa' ? 'جدیدترین محصولات' : 'Newest Products' },
     { href: `/${locale}/retail`,           label: t('retail') },
     { href: `/${locale}/contact`,          label: t('contact') },
   ];
@@ -45,7 +45,7 @@ export default function Header() {
           {/* Logo */}
           <Link href={`/${locale}`} className="flex items-center gap-2.5 group">
             <div className="rounded-full ring-1 ring-gold-500/40 group-hover:ring-gold-500 transition-all overflow-hidden shrink-0" style={{ width: 32, height: 32 }}>
-              <Image src="/logo.png" alt="کالالند" width={32} height={32} className="w-full h-full object-cover" />
+              <Image src="/logo.png" alt="کالالند۲۴" width={32} height={32} className="w-full h-full object-cover" />
             </div>
           </Link>
 

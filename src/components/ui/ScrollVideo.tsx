@@ -5,6 +5,12 @@ import { useEffect, useRef } from 'react';
 export default function ScrollVideo({ src }: { src: string }) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
+  // Cloudinary on-the-fly optimization: adaptive format + quality, capped at 1280px
+  const optimizedSrc = src.replace('/upload/', '/upload/f_auto,q_auto,w_1280/');
+  const posterSrc = src
+    .replace('/upload/', '/upload/so_1,f_auto,q_auto,w_1280/')
+    .replace(/\.mp4$/, '.jpg');
+
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -39,7 +45,8 @@ export default function ScrollVideo({ src }: { src: string }) {
     <div className="relative w-full h-full">
       <video
         ref={videoRef}
-        src={src}
+        src={optimizedSrc}
+        poster={posterSrc}
         muted
         autoPlay
         loop

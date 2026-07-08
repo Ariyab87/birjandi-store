@@ -44,13 +44,18 @@ export default function AdminChatPanel() {
   const [password, setPassword] = useState('');
   const [authed, setAuthed] = useState(false);
   const [authError, setAuthError] = useState('');
-  const [activeTab, setActiveTab] = useState<'chat' | 'prices' | 'seo'>('chat');
+  const [activeTab, setActiveTab] = useState<'chat' | 'prices' | 'seo' | 'orders'>('chat');
+
+  // Orders state
+  const [orders, setOrders] = useState<any[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(false);
+  const [ordersMsg, setOrdersMsg] = useState('');
 
   // Chat state
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: 'سلام! به پنل مدیریت کالالند خوش آمدید.\n\nمی‌توانم:\n• قیمت محصولات را جستجو کنم\n• قیمت را با درصد یا مقدار ثابت تغییر دهم\n• افزایش/کاهش قیمت دسته‌بندی را اعمال کنم\n• تاریخچه تغییرات قیمت را نشان دهم\n\nمثال: "قیمت همه محصولات آشپزخانه را ۵٪ افزایش بده"',
+      content: 'سلام! به پنل مدیریت کالالند۲۴ خوش آمدید.\n\nمی‌توانم:\n• قیمت محصولات را جستجو کنم\n• قیمت را با درصد یا مقدار ثابت تغییر دهم\n• افزایش/کاهش قیمت دسته‌بندی را اعمال کنم\n• تاریخچه تغییرات قیمت را نشان دهم\n\nمثال: "قیمت همه محصولات آشپزخانه را ۵٪ افزایش بده"',
     },
   ]);
   const [input, setInput] = useState('');
@@ -180,6 +185,41 @@ export default function AdminChatPanel() {
     finally { setAutoGenLoading(false); }
   }
 
+  async function loadOrders() {
+    setOrdersLoading(true);
+    setOrdersMsg('');
+    try {
+      const res = await fetch(`/api/admin/orders?password=${encodeURIComponent(password)}`);
+      const data = await res.json();
+      if (!res.ok) { setOrdersMsg(data.error || 'خطا'); return; }
+      setOrders(data.orders || []);
+    } catch { setOrdersMsg('خطا در اتصال'); }
+    finally { setOrdersLoading(false); }
+  }
+
+  async function updateOrderStatus(documentId: string, status: string) {
+    try {
+      const res = await fetch('/api/admin/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password, documentId, status }),
+      });
+      if (!res.ok) { setOrdersMsg('به‌روزرسانی وضعیت ناموفق بود'); return; }
+      setOrders(prev => prev.map(o => o.documentId === documentId ? { ...o, status } : o));
+    } catch { setOrdersMsg('خطا در اتصال'); }
+  }
+
+  async function deleteOrder(documentId: string, orderId: string) {
+    if (!confirm(`سفارش #${orderId} حذف شود؟ این عمل قابل بازگشت نیست.`)) return;
+    try {
+      const res = await fetch(`/api/admin/orders?password=${encodeURIComponent(password)}&documentId=${encodeURIComponent(documentId)}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) { setOrdersMsg('حذف ناموفق بود'); return; }
+      setOrders(prev => prev.filter(o => o.documentId !== documentId));
+    } catch { setOrdersMsg('خطا در اتصال'); }
+  }
+
   async function loadLog() {
     setLogLoading(true);
     try {
@@ -210,7 +250,7 @@ export default function AdminChatPanel() {
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 rounded-xl bg-gold-500 flex items-center justify-center font-bold text-white text-lg">B</div>
             <div>
-              <p className="text-white font-bold">کالالند Admin</p>
+              <p className="text-white font-bold">کالالند۲۴ Admin</p>
               <p className="text-gray-400 text-xs">پنل مدیریت داخلی</p>
             </div>
           </div>
@@ -243,7 +283,7 @@ export default function AdminChatPanel() {
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-gold-500 flex items-center justify-center font-bold text-white">B</div>
           <div>
-            <p className="text-white font-bold text-sm">کالالند — پنل مدیریت</p>
+            <p className="text-white font-bold text-sm">کالالند۲۴ — پنل مدیریت</p>
             <p className="text-gray-400 text-xs flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block" />
               متصل به Strapi
@@ -283,6 +323,14 @@ export default function AdminChatPanel() {
           }`}
         >
           🔍 سئو
+        </button>
+        <button
+          onClick={() => { setActiveTab('orders'); loadOrders(); }}
+          className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+            activeTab === 'orders' ? 'border-gold-500 text-gold-400' : 'border-transparent text-gray-400 hover:text-white'
+          }`}
+        >
+          📦 سفارش‌ها
         </button>
       </div>
 
@@ -560,6 +608,103 @@ export default function AdminChatPanel() {
               </div>
             )}
           </div>
+        </div>
+      )}
+
+      {/* ── ORDERS TAB ── */}
+      {activeTab === 'orders' && (
+        <div className="flex-1 overflow-y-auto px-4 py-6 max-w-4xl w-full mx-auto space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-white font-bold">سفارش‌ها</h2>
+              <p className="text-gray-400 text-xs mt-1">{orders.length} سفارش ثبت‌شده — برای حسابداری</p>
+            </div>
+            <button onClick={loadOrders} className="text-xs text-gray-400 hover:text-white border border-gray-700 px-3 py-1.5 rounded-lg transition-colors">
+              {ordersLoading ? 'در حال بارگذاری...' : '🔄 بروزرسانی'}
+            </button>
+          </div>
+
+          {ordersMsg && (
+            <p className="text-sm px-4 py-3 rounded-xl border bg-red-900/30 border-red-700 text-red-300">{ordersMsg}</p>
+          )}
+
+          {ordersLoading ? (
+            <p className="text-gray-400 text-sm text-center py-10">در حال بارگذاری...</p>
+          ) : orders.length === 0 ? (
+            <p className="text-gray-500 text-sm text-center py-10">هنوز سفارشی ثبت نشده است</p>
+          ) : (
+            orders.map((o) => {
+              const items = Array.isArray(o.items) ? o.items : [];
+              const STATUS: Record<string, { label: string; cls: string }> = {
+                new:       { label: 'جدید',     cls: 'bg-blue-900/40 text-blue-300 border-blue-700' },
+                confirmed: { label: 'تأییدشده',  cls: 'bg-amber-900/40 text-amber-300 border-amber-700' },
+                delivered: { label: 'تحویل‌شده',  cls: 'bg-green-900/40 text-green-300 border-green-700' },
+                cancelled: { label: 'لغوشده',    cls: 'bg-red-900/40 text-red-300 border-red-700' },
+              };
+              const fmt = (n: number) => (Number(n) * 1000).toLocaleString('fa-IR') + ' تومان';
+              const date = o.createdAt ? new Date(o.createdAt).toLocaleString('fa-IR') : '';
+              return (
+                <div key={o.documentId} className="bg-gray-900 border border-gray-800 rounded-2xl p-5">
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <p className="text-white font-bold text-sm">
+                        #{o.order_id} <span className="text-gray-400 font-normal">· {o.type === 'wholesale' ? 'عمده' : 'خرده'}</span>
+                      </p>
+                      <p className="text-gray-500 text-xs mt-0.5">{date}</p>
+                    </div>
+                    <span className={`text-xs px-2 py-1 rounded-lg border ${STATUS[o.status]?.cls || 'bg-gray-800 text-gray-300 border-gray-700'}`}>
+                      {STATUS[o.status]?.label || o.status}
+                    </span>
+                  </div>
+
+                  <div className="text-sm text-gray-300 space-y-1 mb-3">
+                    <p><span className="text-gray-500">نام:</span> {o.customer_name}</p>
+                    <p><span className="text-gray-500">تلفن:</span> <span dir="ltr">{o.customer_phone}</span></p>
+                    <p><span className="text-gray-500">آدرس:</span> {o.customer_address}</p>
+                    {o.business_name && <p><span className="text-gray-500">کسب‌وکار:</span> {o.business_name}</p>}
+                    {o.customer_email && <p><span className="text-gray-500">ایمیل:</span> <span dir="ltr">{o.customer_email}</span></p>}
+                    {o.notes && <p><span className="text-gray-500">توضیحات:</span> {o.notes}</p>}
+                  </div>
+
+                  <div className="border-t border-gray-800 pt-3 space-y-1">
+                    {items.map((it: any, i: number) => (
+                      <div key={i} className="flex justify-between text-xs text-gray-300">
+                        <span>{it.name} × {it.quantity}</span>
+                        <span>{fmt(it.price * it.quantity)}</span>
+                      </div>
+                    ))}
+                    <div className="flex justify-between font-bold text-sm text-gold-400 pt-2">
+                      <span>مجموع کل</span>
+                      <span>{fmt(o.total)}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2 mt-4 flex-wrap">
+                    {['new', 'confirmed', 'delivered', 'cancelled'].map((s) => (
+                      <button
+                        key={s}
+                        onClick={() => updateOrderStatus(o.documentId, s)}
+                        disabled={o.status === s}
+                        className={`text-xs px-3 py-1.5 rounded-lg border transition-colors ${
+                          o.status === s
+                            ? 'bg-gold-500 text-white border-gold-500'
+                            : 'bg-gray-800 text-gray-300 border-gray-700 hover:bg-gray-700'
+                        }`}
+                      >
+                        {STATUS[s].label}
+                      </button>
+                    ))}
+                    <button
+                      onClick={() => deleteOrder(o.documentId, o.order_id)}
+                      className="text-xs px-3 py-1.5 rounded-lg border border-red-800 bg-red-900/30 text-red-300 hover:bg-red-800/50 transition-colors mr-auto"
+                    >
+                      🗑 حذف
+                    </button>
+                  </div>
+                </div>
+              );
+            })
+          )}
         </div>
       )}
     </div>

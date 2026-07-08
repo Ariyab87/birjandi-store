@@ -12,19 +12,28 @@ const textBlock = (label: string, heading: string, paragraph: string) => (
   </div>
 );
 
-const videoBlock = (src: string, title: string) => (
-  <div className="w-full">
-    <video
-      src={src}
-      autoPlay
-      muted
-      loop
-      playsInline
-      title={title}
-      style={{ borderRadius: '12px', maxHeight: '320px', width: '100%', objectFit: 'cover', display: 'block' }}
-    />
-  </div>
-);
+const videoBlock = (src: string, title: string) => {
+  // Cloudinary on-the-fly optimization + poster (below-the-fold → lazy load)
+  const optimizedSrc = src.replace('/upload/', '/upload/f_auto,q_auto,w_1280/');
+  const posterSrc = src
+    .replace('/upload/', '/upload/so_1,f_auto,q_auto,w_1280/')
+    .replace(/\.mp4$/, '.jpg');
+  return (
+    <div className="w-full">
+      <video
+        src={optimizedSrc}
+        poster={posterSrc}
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="none"
+        title={title}
+        style={{ borderRadius: '12px', maxHeight: '320px', width: '100%', objectFit: 'cover', display: 'block' }}
+      />
+    </div>
+  );
+};
 
 export default function WarehouseDeliverySection({ locale }: { locale: string }) {
   const fa = locale === 'fa';

@@ -7,6 +7,22 @@ interface Message {
   content: string;
 }
 
+// Phone numbers and Latin-digit sequences get scrambled inside RTL text
+// (e.g. "+98 993..." renders as "98...+"), so isolate them as LTR runs.
+const LTR_NUMBER_RE = /(\+?[0-9۰-۹][0-9۰-۹\s\-().]{5,}[0-9۰-۹])/g;
+
+function renderMessage(text: string) {
+  return text.split(LTR_NUMBER_RE).map((part, i) =>
+    i % 2 === 1 ? (
+      <span key={i} dir="ltr" style={{ unicodeBidi: 'isolate' }}>
+        {part}
+      </span>
+    ) : (
+      part
+    )
+  );
+}
+
 const QUICK_QUESTIONS_FA = [
   'چه محصولاتی دارید؟',
   'قیمت ظروف ملامین چنده؟',
@@ -35,8 +51,8 @@ export default function ChatWidget({ locale }: { locale: string }) {
       setMessages([{
         role: 'assistant',
         content: fa
-          ? 'سلام! 👋 به کالالند خوش آمدید.\nمن کیا هستم، دستیار هوشمند کالالند. می‌توانم درباره محصولات، قیمت‌ها، ارسال و سفارش عمده راهنماییتان کنم. چطور می‌توانم کمکتان کنم؟'
-          : 'Hi! 👋 Welcome to Kalaland.\nI\'m Kia, your smart assistant. I can help you with products, prices, delivery and wholesale orders. How can I help?',
+          ? 'سلام! 👋 به کالالند۲۴ خوش آمدید.\nمن کیا هستم، دستیار هوشمند کالالند۲۴. می‌توانم درباره محصولات، قیمت‌ها، ارسال و سفارش عمده راهنماییتان کنم. چطور می‌توانم کمکتان کنم؟'
+          : 'Hi! 👋 Welcome to Kalaland24.\nI\'m Kia, your smart assistant. I can help you with products, prices, delivery and wholesale orders. How can I help?',
       }]);
     }
   }, [open]);
@@ -48,6 +64,13 @@ export default function ChatWidget({ locale }: { locale: string }) {
   useEffect(() => {
     if (open) setTimeout(() => inputRef.current?.focus(), 300);
   }, [open]);
+
+  // Allow other components (e.g. contact page card) to open the chat via a global event
+  useEffect(() => {
+    const openChat = () => setOpen(true);
+    window.addEventListener('open-chat', openChat);
+    return () => window.removeEventListener('open-chat', openChat);
+  }, []);
 
   async function send(text?: string) {
     const msg = (text || input).trim();
@@ -116,7 +139,7 @@ export default function ChatWidget({ locale }: { locale: string }) {
               <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-green-400 border-2 border-navy-700" />
             </div>
             <div>
-              <p className="text-white font-semibold text-sm">{fa ? 'کیا — دستیار کالالند' : 'Kia — Kalaland Assistant'}</p>
+              <p className="text-white font-semibold text-sm">{fa ? 'کیا — دستیار کالالند۲۴' : 'Kia — Kalaland24 Assistant'}</p>
               <p className="text-white/60 text-xs">{fa ? 'آنلاین | معمولاً فوری پاسخ می‌دهم' : 'Online | Usually replies instantly'}</p>
             </div>
             <button onClick={() => setOpen(false)} className="mr-auto text-white/50 hover:text-white transition-colors p-1">
@@ -142,7 +165,7 @@ export default function ChatWidget({ locale }: { locale: string }) {
                       : 'bg-white text-gray-800 shadow-sm border border-gray-100 rounded-bl-sm'
                   }`}
                 >
-                  {msg.content}
+                  {renderMessage(msg.content)}
                 </div>
               </div>
             ))}

@@ -3,6 +3,7 @@ import { getProduct, formatPrice, getImageUrl } from '@/lib/api';
 import Image from 'next/image';
 import Link from 'next/link';
 import AddToBasketButton from './AddToBasketButton';
+import WhatsAppOrderButton from '@/components/ui/WhatsAppOrderButton';
 import { BASE_URL, buildTitle, buildDescription, hreflangAlternates } from '@/lib/seo';
 
 const CATEGORY_LABELS: Record<string, { fa: string; en: string }> = {
@@ -38,7 +39,7 @@ export async function generateMetadata({
     return {
       title,
       description,
-      keywords: [name, p.brand, CATEGORY_LABELS[p.category]?.[fa ? 'fa' : 'en'] || p.category, 'کالالند'].filter(Boolean).join(', '),
+      keywords: [name, p.brand, CATEGORY_LABELS[p.category]?.[fa ? 'fa' : 'en'] || p.category, 'کالالند۲۴'].filter(Boolean).join(', '),
       alternates: hreflangAlternates(path, locale),
       robots: p.no_index ? { index: false, follow: false } : { index: true, follow: true },
       openGraph: {
@@ -57,7 +58,7 @@ export async function generateMetadata({
       },
     };
   } catch {
-    return { title: 'کالالند' };
+    return { title: 'کالالند۲۴' };
   }
 }
 
@@ -87,7 +88,7 @@ export default async function ProductPage({
 
   // Price validity: one year out (Google wants priceValidUntil for rich results)
   const priceValidUntil = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-  const seller = { '@type': 'Organization', name: 'کالالند', url: BASE_URL };
+  const seller = { '@type': 'Organization', name: 'کالالند۲۴', url: BASE_URL };
   const availability = product.stock_status === 'in_stock'
     ? 'https://schema.org/InStock'
     : 'https://schema.org/OutOfStock';
@@ -114,7 +115,8 @@ export default async function ProductPage({
         ? {
             '@type': 'Offer',
             priceCurrency: 'IRR',
-            price: String(product.retail_price),
+            // Stored value is in thousands of tomans → ×1000 (toman) ×10 (rial) = ×10,000 IRR
+            price: String(product.retail_price * 10000),
             priceValidUntil,
             availability,
             itemCondition: 'https://schema.org/NewCondition',
@@ -163,7 +165,7 @@ export default async function ProductPage({
           {images[0] ? (
             <Image
               src={getImageUrl(images[0].url, 'full')}
-              alt={`${name} | ${catLabel} | کالالند`}
+              alt={`${name} | ${catLabel} | کالالند۲۴`}
               fill
               quality={100}
               sizes="(max-width: 768px) 100vw, 50vw"
@@ -215,11 +217,19 @@ export default async function ProductPage({
               {fa ? 'استعلام قیمت از طریق واتساپ' : 'Inquire on WhatsApp'}
             </a>
           ) : product.retail_price != null ? (
-            <AddToBasketButton
-              product={{ id: product.id, name, price: product.retail_price }}
-              locale={locale}
-              inStock={product.stock_status === 'in_stock'}
-            />
+            <>
+              <AddToBasketButton
+                product={{ id: product.id, name, price: product.retail_price }}
+                locale={locale}
+                inStock={product.stock_status === 'in_stock'}
+              />
+              <WhatsAppOrderButton
+                fa={fa}
+                productName={name}
+                priceLabel={formatPrice(product.retail_price, locale)}
+                productUrl={productUrl}
+              />
+            </>
           ) : (
             <a
               href={`https://wa.me/905338586763?text=${encodeURIComponent(fa ? `سلام، می‌خواهم قیمت "${name}" را بدانم` : `Hello, I'm interested in "${name}" — can you tell me the price?`)}`}

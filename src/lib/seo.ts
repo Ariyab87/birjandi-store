@@ -1,12 +1,13 @@
 export const BASE_URL = 'https://kalaland24.com';
 export const OG_IMAGE = `${BASE_URL}/logo.png`;
 
-export const SITE_NAME = { fa: 'کالالند', en: 'Kalaland' };
+export const SITE_NAME = { fa: 'کالالند۲۴', en: 'Kalaland24' };
 
 // Social profiles — used for Organization schema `sameAs` and contact
 export const SOCIAL_LINKS = [
   'https://wa.me/905338586763',
   'https://t.me/+989901443513',
+  'https://rubika.ir/kalaland24',
 ];
 
 export function normalizeFarsi(text: string): string {
@@ -23,15 +24,15 @@ export function truncate(text: string | null | undefined, max: number): string {
 }
 
 export function buildTitle(name: string, locale: string): string {
-  if (locale === 'fa') return `خرید ${name} | قیمت و مشخصات | کالالند`;
-  return `Buy ${name} | Price & Details | Kalaland`;
+  if (locale === 'fa') return `خرید ${name} | قیمت و مشخصات | کالالند۲۴`;
+  return `Buy ${name} | Price & Details | Kalaland24`;
 }
 
 export function buildDescription(desc: string | null | undefined, name: string, locale: string): string {
   if (desc && desc.length > 30) return truncate(desc, 155);
   if (locale === 'fa')
-    return `خرید ${name} با بهترین قیمت از کالالند. موجود در انبار، ارسال سریع به سراسر ایران. ضمانت اصالت کالا.`;
-  return `Buy ${name} at the best price from Kalaland. In stock, fast delivery across Iran. Authenticity guaranteed.`;
+    return `خرید ${name} با بهترین قیمت از کالالند۲۴. موجود در انبار، ارسال سریع به سراسر ایران. ضمانت اصالت کالا.`;
+  return `Buy ${name} at the best price from Kalaland24. In stock, fast delivery across Iran. Authenticity guaranteed.`;
 }
 
 /**

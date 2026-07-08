@@ -58,10 +58,10 @@ export async function getProduct(id: string): Promise<{ data: Product }> {
   return fetchAPI<{ data: Product }>(`/products/${id}`, { populate: 'images' });
 }
 
-export async function getFeaturedProducts(): Promise<StrapiList<Product>> {
+export async function getNewestProducts(): Promise<StrapiList<Product>> {
   return fetchAPI<StrapiList<Product>>('/products', {
     populate: 'images',
-    'filters[featured][$eq]': 'true',
+    sort: 'createdAt:desc',
     'pagination[limit]': '8',
   });
 }

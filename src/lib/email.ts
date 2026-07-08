@@ -28,6 +28,11 @@ export interface OrderData {
   orderId: string;
 }
 
+// Prices are stored in thousands of tomans (e.g. 2450 = 2,450,000 تومان) — matches website formatPrice()
+function toToman(price: number): string {
+  return (price * 1000).toLocaleString('fa-IR') + ' تومان';
+}
+
 export async function sendOrderEmails(order: OrderData) {
   const resend = getResend();
   const itemsHtml = order.items
@@ -36,15 +41,15 @@ export async function sendOrderEmails(order: OrderData) {
         `<tr>
           <td style="padding:8px;border-bottom:1px solid #eee">${item.name}</td>
           <td style="padding:8px;border-bottom:1px solid #eee;text-align:center">${item.quantity}</td>
-          <td style="padding:8px;border-bottom:1px solid #eee;text-align:right">${item.price.toLocaleString()} IRR</td>
+          <td style="padding:8px;border-bottom:1px solid #eee;text-align:right">${toToman(item.price)}</td>
         </tr>`
     )
     .join('');
 
   const ownerSubject =
     order.type === 'retail'
-      ? `🛒 New Retail Order — Kalaland #${order.orderId}`
-      : `🏢 New Wholesale Order — Kalaland #${order.orderId}`;
+      ? `🛒 New Retail Order — Kalaland24 #${order.orderId}`
+      : `🏢 New Wholesale Order — Kalaland24 #${order.orderId}`;
 
   const ownerBody = `
     <div style="font-family:sans-serif;max-width:600px;margin:0 auto">
@@ -70,25 +75,25 @@ export async function sendOrderEmails(order: OrderData) {
         <tbody>${itemsHtml}</tbody>
       </table>
       <p style="font-size:1.2em;font-weight:bold;color:#1a3a5c">
-        TOTAL: ${order.total.toLocaleString()} IRR
+        مجموع کل: ${toToman(order.total)}
       </p>
     </div>
   `;
 
   const customerBody = `
     <div style="font-family:sans-serif;max-width:600px;margin:0 auto">
-      <h2 style="color:#1a3a5c">✅ Order Confirmed — Kalaland Appliances</h2>
+      <h2 style="color:#1a3a5c">✅ Order Confirmed — Kalaland24 Appliances</h2>
       <p>Dear ${order.customer.name},</p>
       <p>Thank you for your order! We have received your request and will contact you shortly to confirm and arrange payment/delivery.</p>
       <p><strong>Order #:</strong> ${order.orderId}</p>
-      <p><strong>Total:</strong> ${order.total.toLocaleString()} IRR</p>
+      <p><strong>Total:</strong> ${toToman(order.total)}</p>
       <p>If you have any questions, please call us directly.</p>
       <br/>
-      <p style="color:#888;font-size:0.9em">Kalaland Household Appliances</p>
+      <p style="color:#888;font-size:0.9em">Kalaland24 Household Appliances</p>
     </div>
   `;
 
-  const fromSender = process.env.EMAIL_FROM || 'Kalaland Orders <onboarding@resend.dev>';
+  const fromSender = process.env.EMAIL_FROM || 'Kalaland24 Orders <onboarding@resend.dev>';
 
   await Promise.all([
     resend.emails.send({
@@ -102,7 +107,7 @@ export async function sendOrderEmails(order: OrderData) {
           resend.emails.send({
             from: fromSender,
             to: order.customer.email,
-            subject: `Order Confirmed — Kalaland #${order.orderId}`,
+            subject: `Order Confirmed — Kalaland24 #${order.orderId}`,
             html: customerBody,
           }),
         ]

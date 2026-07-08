@@ -1,13 +1,13 @@
 {
   "homepage": {
-    "title": "Kalaland Electrical and Household Appliances",
+    "title": "Kalaland24 Electrical and Household Appliances",
     "subtitle": "Wholesale & Retail home appliances — the best quality",
     "retail": "Personal Shopping",
     "retail_desc": "Products at retail prices for individual buyers",
     "wholesale": "Wholesale",
     "wholesale_desc": "Special prices for cafés, restaurants, hotels and more",
     "browse_catalog": "Browse Catalog",
-    "featured_products": "Featured Products"
+    "featured_products": "Newest Products"
   },
   "nav": {
     "home": "Home",
@@ -60,6 +60,8 @@
   },
   "footer": {
     "contact": "Contact Us",
+    "social": "Social Media",
+    "support": "24/7 Support",
     "phone": "Phone",
     "address": "Address",
     "rights": "All rights reserved"

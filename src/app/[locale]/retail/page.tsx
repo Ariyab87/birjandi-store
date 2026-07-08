@@ -14,12 +14,12 @@ import { BASE_URL, hreflangAlternates, ogImages } from '@/lib/seo';
 export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
   const fa = locale === 'fa';
   const title = fa
-    ? 'خرید لوازم خانگی آنلاین | ظروف، برقی، ملامین، چینی | کالالند'
-    : 'Buy Home Appliances Online | Cookware, Electric, Melamine, Porcelain | Kalaland';
+    ? 'خرید لوازم خانگی آنلاین | ظروف، برقی، ملامین، چینی | کالالند۲۴'
+    : 'Buy Home Appliances Online | Cookware, Electric, Melamine, Porcelain | Kalaland24';
   const description = fa
-    ? 'خرید ظروف آشپزخانه، لوازم برقی، ظروف ملامین، چینی، استیل، تفلون و بیشتر با بهترین قیمت. ارسال سریع به سراسر ایران از کالالند.'
-    : 'Buy kitchen cookware, electric appliances, melamine, porcelain, steel, teflon and more at the best price. Fast delivery across Iran from Kalaland.';
-  const ogAlt = fa ? 'فروش خرده | کالالند' : 'Retail | Kalaland';
+    ? 'خرید ظروف آشپزخانه، لوازم برقی، ظروف ملامین، چینی، استیل، تفلون و بیشتر با بهترین قیمت. ارسال سریع به سراسر ایران از کالالند۲۴.'
+    : 'Buy kitchen cookware, electric appliances, melamine, porcelain, steel, teflon and more at the best price. Fast delivery across Iran from Kalaland24.';
+  const ogAlt = fa ? 'فروش خرده | کالالند۲۴' : 'Retail | Kalaland24';
   return {
     title,
     description,
@@ -119,7 +119,7 @@ export default async function RetailPage({
           <div className={`flex items-center justify-between gap-3 ${fa ? 'flex-row-reverse' : ''}`}>
             <div className={fa ? 'text-right' : 'text-left'}>
               <p className="text-gold-400 text-xs font-medium mb-1 tracking-widest uppercase">
-                {fa ? 'کالالند ۲۴' : 'Kalaland 24'}
+                {fa ? 'کالالند۲۴ ۲۴' : 'Kalaland24 24'}
               </p>
               <h1 className="text-xl md:text-3xl font-bold leading-tight">
                 {fa ? 'فروشگاه لوازم خانگی' : 'Home Appliances Store'}
@@ -130,7 +130,7 @@ export default async function RetailPage({
             </div>
             <div className="shrink-0">
               <div className="w-12 h-12 md:w-16 md:h-16 rounded-full ring-2 ring-gold-500/50 overflow-hidden">
-                <Image src="/logo.png" alt="کالالند" width={64} height={64} className="w-full h-full object-cover" />
+                <Image src="/logo.png" alt="کالالند۲۴" width={64} height={64} className="w-full h-full object-cover" />
               </div>
             </div>
           </div>
@@ -165,7 +165,7 @@ export default async function RetailPage({
                   : 'border-gray-300 bg-white hover:border-navy-400 hover:text-navy-700'
               }`}
             >
-              {cat.icon} {tCat(cat.key)}
+              {tCat(cat.key)}
             </Link>
           ))}
         </div>

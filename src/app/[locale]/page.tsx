@@ -2,19 +2,19 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 import Image from 'next/image';
 import type { Metadata } from 'next';
-import { getFeaturedProducts } from '@/lib/api';
+import { getNewestProducts } from '@/lib/api';
 import ProductCard from '@/components/product/ProductCard';
 import { BASE_URL, hreflangAlternates, ogImages, SOCIAL_LINKS } from '@/lib/seo';
 
 export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
   const fa = locale === 'fa';
   const title = fa
-    ? 'خرید آنلاین لوازم خانگی و برقی | ارسال سراسر ایران | کالالند'
-    : 'Buy Home & Electrical Appliances Online | Nationwide Delivery | Kalaland';
+    ? 'خرید آنلاین لوازم خانگی و برقی | ارسال سراسر ایران | کالالند۲۴'
+    : 'Buy Home & Electrical Appliances Online | Nationwide Delivery | Kalaland24';
   const description = fa
-    ? 'فروشگاه آنلاین کالالند — خرید ظروف ملامین، چینی، استیل، لوازم برقی و آشپزخانه با بهترین قیمت. ارسال به سراسر ایران. فروش خرده و عمده.'
-    : 'Kalaland online store — buy melamine, porcelain, steel, electric and kitchen appliances at the best price. Delivery across Iran. Retail & wholesale.';
-  const ogAlt = fa ? 'کالالند — لوازم برقی و خانگی' : 'Kalaland — Home & Electrical Appliances';
+    ? 'فروشگاه آنلاین کالالند۲۴ — خرید ظروف ملامین، چینی، استیل، لوازم برقی و آشپزخانه با بهترین قیمت. ارسال به سراسر ایران. فروش خرده و عمده.'
+    : 'Kalaland24 online store — buy melamine, porcelain, steel, electric and kitchen appliances at the best price. Delivery across Iran. Retail & wholesale.';
+  const ogAlt = fa ? 'کالالند۲۴ — لوازم برقی و خانگی' : 'Kalaland24 — Home & Electrical Appliances';
   return {
     title,
     description,
@@ -37,6 +37,7 @@ export async function generateMetadata({ params: { locale } }: { params: { local
 import AnimatedStats from '@/components/ui/AnimatedStats';
 import ScrollVideo from '@/components/ui/ScrollVideo';
 import WarehouseDeliverySection from '@/components/ui/WarehouseDeliverySection';
+import ProductRequestBanner from '@/components/ui/ProductRequestBanner';
 
 const BUSINESS_TYPES = [
   { key: 'cafe',       image: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=400&h=300&fit=crop', label: { fa: 'کافه',      en: 'Café' } },
@@ -56,9 +57,9 @@ export default async function HomePage({
   const t = await getTranslations('homepage');
   const fa = locale === 'fa';
 
-  let featured = { data: [] as Awaited<ReturnType<typeof getFeaturedProducts>>['data'] };
+  let featured = { data: [] as Awaited<ReturnType<typeof getNewestProducts>>['data'] };
   try {
-    featured = await getFeaturedProducts();
+    featured = await getNewestProducts();
   } catch {
     // Strapi not running — empty state
   }
@@ -66,7 +67,7 @@ export default async function HomePage({
   const websiteJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: 'کالالند',
+    name: 'کالالند۲۴',
     url: BASE_URL,
     potentialAction: {
       '@type': 'SearchAction',
@@ -78,8 +79,8 @@ export default async function HomePage({
   const orgJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
-    name: 'کالالند',
-    alternateName: 'Kalaland',
+    name: 'کالالند۲۴',
+    alternateName: 'Kalaland24',
     url: BASE_URL,
     logo: `${BASE_URL}/logo.png`,
     image: `${BASE_URL}/logo.png`,
@@ -95,10 +96,29 @@ export default async function HomePage({
     },
   };
 
+  // Main site sections — helps Google understand structure for sitelinks
+  const navJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    itemListElement: [
+      { name: fa ? 'فروش خرده' : 'Retail Shop',      url: `${BASE_URL}/${locale}/retail` },
+      { name: fa ? 'فروش عمده' : 'Wholesale',         url: `${BASE_URL}/${locale}/wholesale` },
+      { name: fa ? 'تماس با ما' : 'Contact Us',       url: `${BASE_URL}/${locale}/contact` },
+      { name: fa ? 'درباره ما' : 'About Us',          url: `${BASE_URL}/${locale}#about` },
+      { name: fa ? 'محصولات ویژه' : 'Featured Products', url: `${BASE_URL}/${locale}#featured` },
+    ].map((item, i) => ({
+      '@type': 'SiteNavigationElement',
+      position: i + 1,
+      name: item.name,
+      url: item.url,
+    })),
+  };
+
   return (
     <div className="bg-white">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(navJsonLd) }} />
 
       {/* ── HERO ── scroll-driven 3D video */}
       <section className="relative min-h-screen flex items-center overflow-hidden border-b border-gray-100" style={{ marginTop: '-64px' }}>
@@ -115,8 +135,8 @@ export default async function HomePage({
           </span>
           <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold text-white mb-4 leading-tight drop-shadow-lg">
             {fa
-              ? <>لوازم برقی و خانگی کالالند<span className="text-2xl sm:text-3xl font-normal" style={{verticalAlign:'super', fontSize:'0.55em'}}>۲۴</span></>
-              : <>Kalaland<span className="font-normal" style={{verticalAlign:'super', fontSize:'0.55em'}}>24</span><br className="hidden sm:block" /> Electrical &amp; Household</>
+              ? <>لوازم برقی و خانگی کالالند<span className="font-normal text-gold-400" style={{verticalAlign:'super', fontSize:'0.55em'}}>۲۴</span></>
+              : <>Kalaland<span className="font-normal text-gold-400" style={{verticalAlign:'super', fontSize:'0.55em'}}>24</span><br className="hidden sm:block" /> Electrical &amp; Household</>
             }
           </h1>
           <p className="text-base md:text-lg text-white mb-6 md:mb-12 max-w-xl mx-auto" style={{ textShadow: '0 2px 12px rgba(0,0,0,0.8), 0 1px 4px rgba(0,0,0,0.9)' }}>
@@ -172,8 +192,8 @@ export default async function HomePage({
             </h2>
             <p className="text-gray-600 leading-relaxed mb-4">
               {fa
-                ? 'کالالند با دهه‌ها تجربه در حوزه لوازم خانگی، یکی از معتبرترین و شناخته‌شده‌ترین عرضه‌کنندگان این صنعت در بازار است.'
-                : 'With decades of expertise in home appliances, Kalaland has built a reputation as one of the most trusted names in the industry.'}
+                ? 'کالالند۲۴ با دهه‌ها تجربه در حوزه لوازم خانگی، یکی از معتبرترین و شناخته‌شده‌ترین عرضه‌کنندگان این صنعت در بازار است.'
+                : 'With decades of expertise in home appliances, Kalaland24 has built a reputation as one of the most trusted names in the industry.'}
             </p>
             <p className="text-gray-600 leading-relaxed mb-4">
               {fa
@@ -226,6 +246,9 @@ export default async function HomePage({
           </div>
         </section>
       )}
+
+      {/* ── PRODUCT REQUEST (we source anything) ── */}
+      <ProductRequestBanner locale={locale} />
 
       {/* ── WHOLESALE BUSINESS TYPES ── */}
       <section className="bg-white py-16 px-4 border-t border-gray-100">
