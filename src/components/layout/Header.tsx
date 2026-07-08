@@ -32,7 +32,7 @@ export default function Header() {
   const navLinks = [
     { href: `/${locale}`,                  label: t('home') },
     { href: `/${locale}#about`,            label: locale === 'fa' ? 'درباره ما' : 'About Us' },
-    { href: `/${locale}#featured`,         label: locale === 'fa' ? 'جدیدترین محصولات' : 'Newest Products' },
+    { href: `/${locale}#featured`,         label: locale === 'fa' ? 'محصولات ویژه' : 'Featured Products' },
     { href: `/${locale}/retail`,           label: t('retail') },
     { href: `/${locale}/contact`,          label: t('contact') },
   ];

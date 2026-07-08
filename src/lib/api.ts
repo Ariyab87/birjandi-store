@@ -58,9 +58,11 @@ export async function getProduct(id: string): Promise<{ data: Product }> {
   return fetchAPI<{ data: Product }>(`/products/${id}`, { populate: 'images' });
 }
 
-export async function getNewestProducts(): Promise<StrapiList<Product>> {
+// Homepage "محصولات ویژه" — newest electric appliances
+export async function getFeaturedProducts(): Promise<StrapiList<Product>> {
   return fetchAPI<StrapiList<Product>>('/products', {
     populate: 'images',
+    'filters[category][$eq]': 'electric',
     sort: 'createdAt:desc',
     'pagination[limit]': '8',
   });

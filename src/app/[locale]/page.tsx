@@ -2,7 +2,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 import Image from 'next/image';
 import type { Metadata } from 'next';
-import { getNewestProducts } from '@/lib/api';
+import { getFeaturedProducts } from '@/lib/api';
 import ProductCard from '@/components/product/ProductCard';
 import { BASE_URL, hreflangAlternates, ogImages, SOCIAL_LINKS } from '@/lib/seo';
 
@@ -57,9 +57,9 @@ export default async function HomePage({
   const t = await getTranslations('homepage');
   const fa = locale === 'fa';
 
-  let featured = { data: [] as Awaited<ReturnType<typeof getNewestProducts>>['data'] };
+  let featured = { data: [] as Awaited<ReturnType<typeof getFeaturedProducts>>['data'] };
   try {
-    featured = await getNewestProducts();
+    featured = await getFeaturedProducts();
   } catch {
     // Strapi not running — empty state
   }
