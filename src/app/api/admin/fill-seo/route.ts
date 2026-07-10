@@ -109,14 +109,48 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({ total: products.length, remaining: pending.length });
 }
 
-// POST /api/admin/fill-seo — body: { password, batchSize? }
-// Fills ONLY empty fields on the next batch of products; owner content is never overwritten.
+// POST /api/admin/fill-seo — body: { password, batchSize? } OR { password, items: [...] }
+// Fills ONLY empty fields; owner content is never overwritten. With `items`,
+// pre-written copy is applied instead of AI generation (same empty-field guard).
 export async function POST(req: NextRequest) {
   try {
-    const { password, batchSize = 5 } = await req.json();
+    const { password, batchSize = 5, items } = await req.json();
     if (password !== ADMIN_PASSWORD) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    if (!STRAPI_TOKEN || !GROQ_API_KEY) {
-      return NextResponse.json({ error: 'STRAPI_API_TOKEN / GROQ_API_KEY not set' }, { status: 500 });
+    if (!STRAPI_TOKEN) {
+      return NextResponse.json({ error: 'STRAPI_API_TOKEN not set' }, { status: 500 });
+    }
+
+    if (Array.isArray(items)) {
+      const products = await fetchAllProducts();
+      const byId = new Map(products.map(p => [p.documentId, p]));
+      const results: Array<{ documentId: string; name?: string; wrote?: string[]; error?: string }> = [];
+      for (const item of items.slice(0, 40)) {
+        const p = byId.get(item.documentId);
+        if (!p) { results.push({ documentId: item.documentId, error: 'not found' }); continue; }
+        const patch: Record<string, string> = {};
+        for (const k of missingFields(p)) if (!empty(item[k])) patch[k] = String(item[k]);
+        if (Object.keys(patch).length === 0) {
+          results.push({ documentId: p.documentId, name: p.name_fa, wrote: [] });
+          continue;
+        }
+        try {
+          const put = await fetch(`${STRAPI_URL}/api/products/${p.documentId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${STRAPI_TOKEN}` },
+            body: JSON.stringify({ data: patch }),
+          });
+          if (!put.ok) throw new Error(`Strapi PUT ${put.status}: ${(await put.text()).slice(0, 200)}`);
+          results.push({ documentId: p.documentId, name: p.name_fa, wrote: Object.keys(patch) });
+        } catch (err) {
+          results.push({ documentId: p.documentId, name: p.name_fa, error: String(err) });
+        }
+      }
+      const done = results.filter(r => r.wrote && r.wrote.length).length;
+      return NextResponse.json({ processed: results.length, succeeded: done, results });
+    }
+
+    if (!GROQ_API_KEY) {
+      return NextResponse.json({ error: 'GROQ_API_KEY not set' }, { status: 500 });
     }
 
     const products = await fetchAllProducts();
