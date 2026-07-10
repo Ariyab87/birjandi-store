@@ -95,6 +95,7 @@ async function generateCopy(p: ProductRow) {
   const out = JSON.parse(json.choices[0].message.content);
   if (empty(out.description_fa) || empty(out.seo_title)) throw new Error('incomplete generation');
   if (out.seo_title.length > 70) out.seo_title = out.seo_title.slice(0, 70);
+  if (!out.seo_title.includes('کالالند۲۴') && out.seo_title.length <= 48) out.seo_title += ' | کالالند۲۴';
   if (out.seo_description.length > 160) out.seo_description = out.seo_description.slice(0, 157) + '...';
   return out as Record<string, string>;
 }
