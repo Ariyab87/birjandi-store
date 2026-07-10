@@ -5,7 +5,7 @@ import Link from 'next/link';
 import AddToBasketButton from './AddToBasketButton';
 import WhatsAppOrderButton from '@/components/ui/WhatsAppOrderButton';
 import ProductCard from '@/components/product/ProductCard';
-import { BASE_URL, buildTitle, buildDescription, hreflangAlternates } from '@/lib/seo';
+import { BASE_URL, buildTitle, buildDescription, hreflangAlternates, normalizeFarsi } from '@/lib/seo';
 
 const CATEGORY_LABELS: Record<string, { fa: string; en: string }> = {
   electric:  { fa: 'برقی',       en: 'Electric' },
@@ -88,7 +88,20 @@ export default async function ProductPage({
   const name = fa ? product.name_fa : product.name_en;
   const description = fa ? product.description_fa : product.description_en;
 
-  // Related products — same category, excluding current (internal linking + richer page)
+  // Related products — same category, ranked by name similarity + same brand,
+  // so a juicer suggests other juicers/blenders before unrelated appliances.
+  const GENERIC_TOKENS = new Set(['مدل', 'طرح', 'سایز', 'برند', 'با', 'و', 'در', 'از', 'برای', 'دو', 'سه', 'تک']);
+  const nameTokens = (...names: Array<string | null | undefined>) => {
+    const tokens = new Set<string>();
+    for (const n of names) {
+      if (!n) continue;
+      for (const w of normalizeFarsi(n).toLowerCase().split(/[^\p{L}]+/u)) {
+        if (w.length >= 2 && !GENERIC_TOKENS.has(w)) tokens.add(w);
+      }
+    }
+    return tokens;
+  };
+
   let related: Product[] = [];
   try {
     const rel = await getProducts(
@@ -98,9 +111,18 @@ export default async function ProductPage({
         sort: 'createdAt:desc',
       },
       1,
-      8,
+      100,
     );
-    related = rel.data;
+    const baseTokens = nameTokens(product.name_fa, product.name_en);
+    related = rel.data
+      .map(p => {
+        let score = 0;
+        for (const t of nameTokens(p.name_fa, p.name_en)) if (baseTokens.has(t)) score += 2;
+        if (p.brand && p.brand === product.brand) score += 3;
+        return { p, score };
+      })
+      .sort((a, b) => b.score - a.score) // stable sort keeps newest-first among ties
+      .map(s => s.p);
   } catch { /* Strapi unavailable — skip related section */ }
   const images = product.images || [];
   const catLabel = CATEGORY_LABELS[product.category]?.[fa ? 'fa' : 'en'] || product.category;
@@ -165,7 +187,15 @@ export default async function ProductPage({
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-10">
+    <div className="relative overflow-hidden">
+      {/* Ambient animated background */}
+      <div aria-hidden className="pointer-events-none absolute inset-0">
+        <div className="ambient-blob w-80 h-80 bg-gold-500/15 top-10 -right-24" />
+        <div className="ambient-blob w-[28rem] h-[28rem] bg-navy-700/10 top-1/4 -left-32" style={{ animationDelay: '5s' }} />
+        <div className="ambient-blob w-72 h-72 bg-amber-300/15 bottom-16 right-1/4" style={{ animationDelay: '9s' }} />
+      </div>
+
+    <div className="max-w-5xl mx-auto px-4 py-10 relative">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
 
@@ -181,7 +211,7 @@ export default async function ProductPage({
       </nav>
 
       <div className="grid md:grid-cols-2 gap-10">
-        <div className="bg-white rounded-2xl p-6 shadow-sm aspect-square relative">
+        <div className="bg-white rounded-2xl p-6 shadow-sm aspect-square relative overflow-hidden group">
           {images[0] ? (
             <Image
               src={getImageUrl(images[0].url, 'full')}
@@ -189,7 +219,7 @@ export default async function ProductPage({
               fill
               quality={100}
               sizes="(max-width: 768px) 100vw, 50vw"
-              className="object-contain p-4"
+              className="object-contain p-4 transition-transform duration-700 ease-out group-hover:scale-105"
               priority
             />
           ) : (
@@ -334,6 +364,7 @@ export default async function ProductPage({
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 }

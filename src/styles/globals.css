@@ -98,3 +98,20 @@
     @apply text-2xl font-bold text-navy-700 mb-6;
   }
 }
+
+/* Ambient floating gradient blobs (product page background) */
+.ambient-blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(70px);
+  animation: ambient-float 16s ease-in-out infinite;
+}
+
+@keyframes ambient-float {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50%      { transform: translateY(-36px) scale(1.1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient-blob { animation: none; }
+}
