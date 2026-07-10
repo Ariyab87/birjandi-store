@@ -134,7 +134,7 @@ export async function POST(req: NextRequest) {
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${STRAPI_TOKEN}` },
           body: JSON.stringify({ data: patch }),
         });
-        if (!put.ok) throw new Error(`Strapi PUT ${put.status}`);
+        if (!put.ok) throw new Error(`Strapi PUT ${put.status}: ${(await put.text()).slice(0, 300)}`);
         results.push({ documentId: p.documentId, name: p.name_fa, wrote: Object.keys(patch) });
       } catch (err) {
         results.push({ documentId: p.documentId, name: p.name_fa, error: String(err) });
