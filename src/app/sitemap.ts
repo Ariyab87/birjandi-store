@@ -8,11 +8,12 @@ function entry(
   path: string,
   priority: number,
   freq: MetadataRoute.Sitemap[0]['changeFrequency'] = 'weekly',
+  lastModified: Date = new Date(),
 ): MetadataRoute.Sitemap[0] {
   const suffix = path ? `/${path}` : '';
   return {
     url: `${BASE}/fa${suffix}`,
-    lastModified: new Date(),
+    lastModified,
     changeFrequency: freq,
     priority,
     alternates: {
@@ -36,7 +37,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let productUrls: MetadataRoute.Sitemap = [];
   try {
     const { data } = await getProducts({}, 1, 500);
-    productUrls = data.map(p => entry(`retail/${p.category}/${p.documentId}`, 0.8));
+    productUrls = data.map(p =>
+      entry(`retail/${p.category}/${p.documentId}`, 0.8, 'weekly', p.updatedAt ? new Date(p.updatedAt) : new Date()),
+    );
   } catch { /* Strapi not available at build time */ }
 
   return [...staticUrls, ...productUrls];

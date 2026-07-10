@@ -33,7 +33,7 @@ export default function Header() {
     { href: `/${locale}`,                  label: t('home') },
     { href: `/${locale}#about`,            label: locale === 'fa' ? 'درباره ما' : 'About Us' },
     { href: `/${locale}#featured`,         label: locale === 'fa' ? 'محصولات ویژه' : 'Featured Products' },
-    { href: `/${locale}/retail`,           label: t('retail') },
+    { href: `/${locale}/retail`,           label: t('retail'), primary: true },
     { href: `/${locale}/contact`,          label: t('contact') },
   ];
 
@@ -56,9 +56,13 @@ export default function Header() {
                 key={link.href}
                 href={link.href}
                 className={`relative pb-1 transition-colors hover:text-gold-400 ${
+                  link.primary ? 'font-bold' : ''
+                } ${
                   pathname === link.href
                     ? 'text-gold-400 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-gold-400 after:rounded-full'
-                    : 'text-white/80 hover:text-gold-400'
+                    : link.primary
+                      ? 'text-white hover:text-gold-400'
+                      : 'text-white/80 hover:text-gold-400'
                 }`}
               >
                 {link.label}
@@ -123,10 +127,14 @@ export default function Header() {
                 key={link.href}
                 href={link.href}
                 onClick={() => setMenuOpen(false)}
-                className={`py-3 px-4 rounded-lg text-sm font-medium transition-colors ${
+                className={`py-3 px-4 rounded-lg text-sm transition-colors ${
+                  link.primary ? 'font-bold' : 'font-medium'
+                } ${
                   pathname === link.href
                     ? 'bg-gold-500/20 text-gold-400'
-                    : 'hover:bg-white/10 text-white/80'
+                    : link.primary
+                      ? 'hover:bg-white/10 text-white'
+                      : 'hover:bg-white/10 text-white/80'
                 }`}
               >
                 {link.label}

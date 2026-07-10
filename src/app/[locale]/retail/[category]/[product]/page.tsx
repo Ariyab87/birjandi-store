@@ -1,13 +1,18 @@
 import type { Metadata } from 'next';
-import { getProduct, formatPrice, getImageUrl } from '@/lib/api';
+import { getProduct, getProducts, formatPrice, getImageUrl, type Product } from '@/lib/api';
 import Image from 'next/image';
 import Link from 'next/link';
 import AddToBasketButton from './AddToBasketButton';
 import WhatsAppOrderButton from '@/components/ui/WhatsAppOrderButton';
+import ProductCard from '@/components/product/ProductCard';
 import { BASE_URL, buildTitle, buildDescription, hreflangAlternates } from '@/lib/seo';
 
 const CATEGORY_LABELS: Record<string, { fa: string; en: string }> = {
   electric:  { fa: 'برقی',       en: 'Electric' },
+  kitchen:   { fa: 'آشپزخانه',   en: 'Kitchen' },
+  cooling:   { fa: 'سرمایشی',    en: 'Cooling' },
+  heating:   { fa: 'گرمایشی',    en: 'Heating' },
+  cleaning:  { fa: 'نظافت',      en: 'Cleaning' },
   metal:     { fa: 'فلزی',       en: 'Metal' },
   melamine:  { fa: 'ملامین',     en: 'Melamine' },
   glass:     { fa: 'شکستنی',     en: 'Glassware' },
@@ -82,6 +87,21 @@ export default async function ProductPage({
   const fa = locale === 'fa';
   const name = fa ? product.name_fa : product.name_en;
   const description = fa ? product.description_fa : product.description_en;
+
+  // Related products — same category, excluding current (internal linking + richer page)
+  let related: Product[] = [];
+  try {
+    const rel = await getProducts(
+      {
+        'filters[category][$eq]': product.category,
+        'filters[documentId][$ne]': product.documentId,
+        sort: 'createdAt:desc',
+      },
+      1,
+      8,
+    );
+    related = rel.data;
+  } catch { /* Strapi unavailable — skip related section */ }
   const images = product.images || [];
   const catLabel = CATEGORY_LABELS[product.category]?.[fa ? 'fa' : 'en'] || product.category;
   const productUrl = `${BASE_URL}/${locale}/retail/${product.category}/${productId}`;
@@ -250,8 +270,70 @@ export default async function ProductPage({
               <p className="text-gray-600 leading-relaxed text-sm">{description}</p>
             </div>
           )}
+
+          {/* Specs table */}
+          <div className="mt-8">
+            <h2 className="font-semibold text-navy-700 mb-3">
+              {fa ? 'مشخصات کلی' : 'General Specifications'}
+            </h2>
+            <div className="bg-white rounded-xl border border-gray-100 divide-y divide-gray-100 text-sm">
+              <div className="flex justify-between px-4 py-3">
+                <span className="text-gray-400">{fa ? 'برند' : 'Brand'}</span>
+                <span className="text-navy-700 font-medium">{product.brand}</span>
+              </div>
+              <div className="flex justify-between px-4 py-3">
+                <span className="text-gray-400">{fa ? 'دسته‌بندی' : 'Category'}</span>
+                <Link href={`/${locale}/retail?category=${product.category}`} className="text-navy-700 font-medium hover:text-gold-600 transition-colors">
+                  {catLabel}
+                </Link>
+              </div>
+              <div className="flex justify-between px-4 py-3">
+                <span className="text-gray-400">{fa ? 'وضعیت' : 'Availability'}</span>
+                <span className={product.stock_status === 'in_stock' ? 'text-green-600 font-medium' : 'text-red-500 font-medium'}>
+                  {product.stock_status === 'in_stock' ? (fa ? 'موجود در انبار' : 'In stock') : (fa ? 'ناموجود' : 'Out of stock')}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Trust badges */}
+          <div className="mt-6 grid grid-cols-2 gap-3 text-sm">
+            {[
+              { icon: '🚚', fa: 'ارسال به سراسر ایران', en: 'Delivery across Iran' },
+              { icon: '✅', fa: 'ضمانت اصالت کالا', en: 'Authenticity guaranteed' },
+              { icon: '📞', fa: 'پشتیبانی ۲۴ ساعته', en: '24/7 support' },
+              { icon: '💬', fa: 'سفارش آسان از واتساپ', en: 'Easy WhatsApp ordering' },
+            ].map((b) => (
+              <div key={b.icon} className="flex items-center gap-2 bg-cream rounded-xl px-3 py-2.5">
+                <span>{b.icon}</span>
+                <span className="text-gray-600">{fa ? b.fa : b.en}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
+
+      {/* Related products */}
+      {related.length > 0 && (
+        <div className="mt-16">
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-xl font-bold text-navy-700">
+              {fa ? 'محصولات مشابه' : 'Related Products'}
+            </h2>
+            <Link
+              href={`/${locale}/retail?category=${product.category}`}
+              className="text-sm text-gold-600 hover:text-gold-700 font-medium transition-colors"
+            >
+              {fa ? `مشاهده همه ${catLabel} ›` : `View all ${catLabel} ›`}
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
+            {related.slice(0, 4).map((p) => (
+              <ProductCard key={p.id} product={p} mode="retail" />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

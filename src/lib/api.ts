@@ -29,6 +29,7 @@ export interface Product {
   seo_description: string | null;
   focus_keyword: string | null;
   no_index: boolean;
+  updatedAt?: string;
   images: Array<{
     id: number;
     url: string;

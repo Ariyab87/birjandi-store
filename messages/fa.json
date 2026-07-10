@@ -67,17 +67,21 @@
     "rights": "تمامی حقوق محفوظ است"
   },
   "categories": {
-    "electric":  "برقی",
-    "metal":     "فلزی",
-    "melamine":  "ملامین",
-    "glass":     "شکستنی",
+    "electric": "برقی",
+    "kitchen": "آشپزخانه",
+    "cooling": "سرمایشی",
+    "heating": "گرمایشی",
+    "cleaning": "نظافت",
+    "metal": "فلزی",
+    "melamine": "ملامین",
+    "glass": "شکستنی",
     "porcelain": "چینی",
-    "teflon":    "تفلون",
-    "steel":     "استیل",
-    "ceramic":   "سرامیک",
-    "plastic":   "پلاستیک",
-    "crystal":   "کریستال",
-    "copper":    "مسی",
+    "teflon": "تفلون",
+    "steel": "استیل",
+    "ceramic": "سرامیک",
+    "plastic": "پلاستیک",
+    "crystal": "کریستال",
+    "copper": "مسی",
     "cast_iron": "چدن"
   }
 }

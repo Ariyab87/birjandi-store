@@ -67,17 +67,21 @@
     "rights": "All rights reserved"
   },
   "categories": {
-    "electric":  "Electric",
-    "metal":     "Metal",
-    "melamine":  "Melamine",
-    "glass":     "Glassware",
+    "electric": "Electric",
+    "kitchen": "Kitchen",
+    "cooling": "Cooling",
+    "heating": "Heating",
+    "cleaning": "Cleaning",
+    "metal": "Metal",
+    "melamine": "Melamine",
+    "glass": "Glassware",
     "porcelain": "Porcelain",
-    "teflon":    "Teflon",
-    "steel":     "Steel",
-    "ceramic":   "Ceramic",
-    "plastic":   "Plastic",
-    "crystal":   "Crystal",
-    "copper":    "Copper",
+    "teflon": "Teflon",
+    "steel": "Steel",
+    "ceramic": "Ceramic",
+    "plastic": "Plastic",
+    "crystal": "Crystal",
+    "copper": "Copper",
     "cast_iron": "Cast Iron"
   }
 }

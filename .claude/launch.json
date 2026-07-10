@@ -6,6 +6,12 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev", "--prefix", "/Users/ariya/Desktop/Birjandi-store"],
       "port": 3000
+    },
+    {
+      "name": "frontend-prod-data",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": ["-c", "NEXT_PUBLIC_STRAPI_URL=https://birjandi-backend-production.up.railway.app npm run dev --prefix /Users/ariya/Desktop/Birjandi-store"],
+      "port": 3000
     }
   ]
 }

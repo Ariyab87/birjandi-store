@@ -86,6 +86,19 @@ export default async function RetailPage({
   const fa = locale === 'fa';
   const { pageCount } = products.meta.pagination;
 
+  // JSON-LD: ItemList of the products on this page (helps Google map the catalog)
+  const itemListJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    numberOfItems: products.meta.pagination.total,
+    itemListElement: products.data.map((p, i) => ({
+      '@type': 'ListItem',
+      position: (currentPage - 1) * PAGE_SIZE + i + 1,
+      name: fa ? p.name_fa : p.name_en,
+      url: `${BASE_URL}/${locale}/retail/${p.category}/${p.documentId}`,
+    })),
+  };
+
   function pageUrl(p: number) {
     const sp = new URLSearchParams();
     if (searchParams.category) sp.set('category', searchParams.category);
@@ -113,13 +126,14 @@ export default async function RetailPage({
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }} />
       {/* Hero banner */}
       <div className="bg-gradient-to-l from-navy-800 to-navy-900 text-white py-6 px-4">
         <div className="max-w-7xl mx-auto">
           <div className={`flex items-center justify-between gap-3 ${fa ? 'flex-row-reverse' : ''}`}>
             <div className={fa ? 'text-right' : 'text-left'}>
               <p className="text-gold-400 text-xs font-medium mb-1 tracking-widest uppercase">
-                {fa ? 'کالالند۲۴ ۲۴' : 'Kalaland24 24'}
+                {fa ? 'کالالند۲۴' : 'Kalaland24'}
               </p>
               <h1 className="text-xl md:text-3xl font-bold leading-tight">
                 {fa ? 'فروشگاه لوازم خانگی' : 'Home Appliances Store'}

@@ -94,7 +94,7 @@ export default function VideoReel() {
 
           <div>
             <p className="text-gold-500 text-xs font-semibold tracking-widest uppercase mb-1.5">
-              {fa ? 'کالالند۲۴ ۲۴' : 'Kalaland24 24'}
+              {fa ? 'کالالند۲۴' : 'Kalaland24'}
             </p>
             <h2 className="text-navy-800 text-lg md:text-2xl font-bold leading-snug">
               {fa ? 'لوازم خانگی و برقی برای کسب‌وکار و خانه' : 'Home & Commercial Appliances'}

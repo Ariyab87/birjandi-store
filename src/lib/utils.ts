@@ -10,6 +10,10 @@ export function generateOrderId(): string {
 
 export const RETAIL_CATEGORIES = [
   { key: 'electric',  icon: '⚡' },
+  { key: 'kitchen',   icon: '🍲' },
+  { key: 'cooling',   icon: '❄️' },
+  { key: 'heating',   icon: '🔥' },
+  { key: 'cleaning',  icon: '🧹' },
   { key: 'metal',     icon: '🥘' },
   { key: 'melamine',  icon: '🍽️' },
   { key: 'glass',     icon: '🥂' },
