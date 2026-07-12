@@ -212,6 +212,9 @@ export default async function ProductPage({
       </nav>
 
       <div className="grid md:grid-cols-2 gap-10">
+        <div className="relative">
+          {/* Spotlight halo behind the product image */}
+          <div aria-hidden className="spotlight-glow" />
         <div className="bg-white rounded-2xl p-6 shadow-sm aspect-square relative overflow-hidden group">
           {images[0] ? (
             <Image
@@ -226,6 +229,7 @@ export default async function ProductPage({
           ) : (
             <div className="w-full h-full flex items-center justify-center text-gray-300 text-8xl">📦</div>
           )}
+        </div>
         </div>
 
         <div>
