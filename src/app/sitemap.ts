@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next';
-import { getProducts } from '@/lib/api';
+import { getProducts, getArticles } from '@/lib/api';
 
 const BASE = 'https://kalaland24.com';
 
@@ -31,8 +31,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     entry('', 1.0, 'daily'),
     entry('retail', 0.9, 'daily'),
     entry('wholesale', 0.8),
+    entry('blog', 0.7, 'weekly'),
     entry('contact', 0.5, 'monthly'),
   ];
+
+  let articleUrls: MetadataRoute.Sitemap = [];
+  try {
+    const { data } = await getArticles(1, 100);
+    articleUrls = data.map(a => entry(`blog/${a.slug}`, 0.7, 'monthly', new Date(a.updatedAt)));
+  } catch { /* Strapi not available */ }
 
   let productUrls: MetadataRoute.Sitemap = [];
   try {
@@ -46,5 +53,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   } catch { /* Strapi not available at build time */ }
 
-  return [...staticUrls, ...productUrls];
+  return [...staticUrls, ...articleUrls, ...productUrls];
 }

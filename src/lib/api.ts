@@ -105,3 +105,35 @@ export function formatPrice(price: number, locale: string): string {
   }
   return new Intl.NumberFormat('en-US').format(actual) + ' T';
 }
+
+// ── Blog articles (مجله) ──────────────────────────────────────────────────
+export interface Article {
+  id: number;
+  documentId: string;
+  title_fa: string;
+  slug: string;
+  excerpt_fa: string | null;
+  content_fa: string;
+  seo_title: string | null;
+  seo_description: string | null;
+  cover: { url: string; formats?: { medium?: { url: string } } } | null;
+  publishedAt: string;
+  updatedAt: string;
+}
+
+export async function getArticles(page = 1, pageSize = 12): Promise<StrapiList<Article>> {
+  return fetchAPI<StrapiList<Article>>('/articles', {
+    populate: 'cover',
+    sort: 'publishedAt:desc',
+    'pagination[page]': String(page),
+    'pagination[pageSize]': String(pageSize),
+  });
+}
+
+export async function getArticleBySlug(slug: string): Promise<Article | null> {
+  const res = await fetchAPI<StrapiList<Article>>('/articles', {
+    populate: 'cover',
+    'filters[slug][$eq]': slug,
+  });
+  return res.data[0] || null;
+}

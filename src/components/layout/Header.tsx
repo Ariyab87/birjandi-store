@@ -34,6 +34,7 @@ export default function Header() {
     { href: `/${locale}#about`,            label: locale === 'fa' ? 'درباره ما' : 'About Us' },
     { href: `/${locale}#featured`,         label: locale === 'fa' ? 'محصولات ویژه' : 'Featured Products' },
     { href: `/${locale}/retail`,           label: t('retail'), primary: true },
+    { href: `/${locale}/blog`,             label: locale === 'fa' ? 'مجله' : 'Magazine' },
     { href: `/${locale}/contact`,          label: t('contact') },
   ];
 

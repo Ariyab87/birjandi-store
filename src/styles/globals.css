@@ -134,3 +134,14 @@
 @media (prefers-reduced-motion: reduce) {
   .spotlight-glow { animation: none; }
 }
+
+/* Article body typography (blog) */
+.article-body { color: #374151; line-height: 2; font-size: 15.5px; }
+.article-body h2 { color: #0e2642; font-weight: 700; font-size: 1.35rem; margin: 2rem 0 0.75rem; }
+.article-body h3 { color: #0e2642; font-weight: 600; font-size: 1.1rem; margin: 1.5rem 0 0.5rem; }
+.article-body p { margin: 0 0 1rem; }
+.article-body ul { list-style: disc; padding-right: 1.5rem; margin: 0 0 1rem; }
+.article-body li { margin-bottom: 0.4rem; }
+.article-body a { color: #b8860b; text-decoration: underline; text-underline-offset: 3px; }
+.article-body a:hover { color: #d4a017; }
+.article-body strong { color: #0e2642; }
