@@ -103,12 +103,46 @@ ${catalog}
 `.trim();
 }
 
+// Abuse guard: generous per-IP limits a real customer will never hit
+// (humans send ~4-6 messages/min in fast chat), but bots burning the Groq
+// quota get stopped. In-memory per instance — resets on cold start, good enough.
+const RATE = { perMinute: 12, perDay: 150 };
+const hits = new Map<string, number[]>();
+
+function rateLimited(ip: string): boolean {
+  const now = Date.now();
+  const day = (hits.get(ip) || []).filter(t => now - t < 24 * 60 * 60 * 1000);
+  const minute = day.filter(t => now - t < 60_000);
+  if (minute.length >= RATE.perMinute || day.length >= RATE.perDay) {
+    hits.set(ip, day);
+    return true;
+  }
+  day.push(now);
+  hits.set(ip, day);
+  if (hits.size > 5000) hits.clear();
+  return false;
+}
+
+const BUSY_REPLY =
+  'الان تعداد گفتگوها خیلی بالاست 🙏 لطفاً یک دقیقه دیگر دوباره پیام بدهید، یا از طریق واتساپ با ما در تماس باشید: wa.me/905338586763';
+
 export async function POST(req: NextRequest) {
   try {
     const { messages } = await req.json();
     if (!messages || !Array.isArray(messages)) {
       return NextResponse.json({ error: 'Invalid messages' }, { status: 400 });
     }
+
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+    if (rateLimited(ip)) {
+      return NextResponse.json({ reply: BUSY_REPLY });
+    }
+
+    // Cap history length and message size so oversized payloads can't burn tokens
+    const sanitized = messages.slice(-12).map((m: { role?: string; content?: unknown }) => ({
+      role: m.role === 'assistant' ? ('assistant' as const) : ('user' as const),
+      content: String(m.content ?? '').slice(0, 2000),
+    }));
 
     const [catalog] = await Promise.all([buildProductCatalog()]);
 
@@ -118,7 +152,7 @@ export async function POST(req: NextRequest) {
       model: 'llama-3.3-70b-versatile',
       messages: [
         { role: 'system', content: buildSystemPrompt(catalog) },
-        ...messages,
+        ...sanitized,
       ],
       max_tokens: 1024,
       temperature: 0.4,
