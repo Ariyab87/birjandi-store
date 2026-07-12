@@ -95,7 +95,8 @@ export default async function ProductPage({
     const tokens = new Set<string>();
     for (const n of names) {
       if (!n) continue;
-      for (const w of normalizeFarsi(n).toLowerCase().split(/[^\p{L}]+/u)) {
+      // split on anything that isn't a Persian/Arabic or Latin letter (es5-safe, no \p{L})
+      for (const w of normalizeFarsi(n).toLowerCase().split(/[^a-z؀-ۿ]+/)) {
         if (w.length >= 2 && !GENERIC_TOKENS.has(w)) tokens.add(w);
       }
     }
@@ -117,7 +118,7 @@ export default async function ProductPage({
     related = rel.data
       .map(p => {
         let score = 0;
-        for (const t of nameTokens(p.name_fa, p.name_en)) if (baseTokens.has(t)) score += 2;
+        nameTokens(p.name_fa, p.name_en).forEach(t => { if (baseTokens.has(t)) score += 2; });
         if (p.brand && p.brand === product.brand) score += 3;
         return { p, score };
       })
