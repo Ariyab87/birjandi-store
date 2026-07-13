@@ -1,3 +1,5 @@
+'use client';
+
 interface Props {
   rating: number;
   size?: number;
