@@ -182,7 +182,7 @@ export default async function ProductPage({
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: fa ? 'خانه' : 'Home', item: `${BASE_URL}/${locale}` },
       { '@type': 'ListItem', position: 2, name: fa ? 'فروش خرده' : 'Retail', item: `${BASE_URL}/${locale}/retail` },
-      { '@type': 'ListItem', position: 3, name: catLabel, item: `${BASE_URL}/${locale}/retail?category=${product.category}` },
+      { '@type': 'ListItem', position: 3, name: catLabel, item: `${BASE_URL}/${locale}/retail/${product.category}` },
       { '@type': 'ListItem', position: 4, name, item: productUrl },
     ],
   };
@@ -206,7 +206,7 @@ export default async function ProductPage({
         <span>›</span>
         <Link href={`/${locale}/retail`} className="hover:text-navy-700 transition-colors">{fa ? 'فروش خرده' : 'Retail'}</Link>
         <span>›</span>
-        <Link href={`/${locale}/retail?category=${product.category}`} className="hover:text-navy-700 transition-colors">{catLabel}</Link>
+        <Link href={`/${locale}/retail/${product.category}`} className="hover:text-navy-700 transition-colors">{catLabel}</Link>
         <span>›</span>
         <span className="text-navy-700 font-medium">{name}</span>
       </nav>
@@ -318,7 +318,7 @@ export default async function ProductPage({
               </div>
               <div className="flex justify-between px-4 py-3">
                 <span className="text-gray-400">{fa ? 'دسته‌بندی' : 'Category'}</span>
-                <Link href={`/${locale}/retail?category=${product.category}`} className="text-navy-700 font-medium hover:text-gold-600 transition-colors">
+                <Link href={`/${locale}/retail/${product.category}`} className="text-navy-700 font-medium hover:text-gold-600 transition-colors">
                   {catLabel}
                 </Link>
               </div>
@@ -356,7 +356,7 @@ export default async function ProductPage({
               {fa ? 'محصولات مشابه' : 'Related Products'}
             </h2>
             <Link
-              href={`/${locale}/retail?category=${product.category}`}
+              href={`/${locale}/retail/${product.category}`}
               className="text-sm text-gold-600 hover:text-gold-700 font-medium transition-colors"
             >
               {fa ? `مشاهده همه ${catLabel} ›` : `View all ${catLabel} ›`}

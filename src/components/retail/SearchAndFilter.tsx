@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, useSearchParams, useParams } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 // Stored prices are in thousands of tomans — filter values must match
 const PRICE_RANGES = [
@@ -24,6 +24,9 @@ export default function SearchAndFilter({ brands = [] }: { brands?: string[] }) 
   const params = useParams();
   const searchParams = useSearchParams();
   const locale = params.locale as string;
+  // Category now lives in the URL path (/retail/[category]), not a ?category= query param.
+  const category = params.category as string | undefined;
+  const basePath = category ? `/${locale}/retail/${category}` : `/${locale}/retail`;
   const fa = locale === 'fa';
 
   const [query, setQuery] = useState(searchParams.get('q') || '');
@@ -31,21 +34,22 @@ export default function SearchAndFilter({ brands = [] }: { brands?: string[] }) 
   const [price, setPrice] = useState(searchParams.get('price') || '');
   const [sort, setSort] = useState(searchParams.get('sort') || '');
 
+  const mounted = useRef(false);
   useEffect(() => {
+    if (!mounted.current) { mounted.current = true; return; }
     const timeout = setTimeout(() => applyFilters(query, brand, price, sort), 400);
     return () => clearTimeout(timeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query]);
 
   function applyFilters(q: string, b: string, p: string, s: string) {
     const sp = new URLSearchParams();
-    const category = searchParams.get('category');
-    if (category) sp.set('category', category);
     if (q) sp.set('q', q);
     if (b) sp.set('brand', b);
     if (p) sp.set('price', p);
     if (s) sp.set('sort', s);
     // always reset to page 1 when filters change
-    router.push(`/${locale}/retail${sp.toString() ? `?${sp.toString()}` : ''}`);
+    router.push(`${basePath}${sp.toString() ? `?${sp.toString()}` : ''}`);
   }
 
   function handleBrand(b: string) {
@@ -68,8 +72,7 @@ export default function SearchAndFilter({ brands = [] }: { brands?: string[] }) 
     setBrand('');
     setPrice('');
     setSort('');
-    const category = searchParams.get('category');
-    router.push(`/${locale}/retail${category ? `?category=${category}` : ''}`);
+    router.push(basePath);
   }
 
   const hasFilters = query || brand || price || sort;

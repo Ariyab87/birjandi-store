@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next';
 import { getProducts, getArticles } from '@/lib/api';
+import { RETAIL_CATEGORIES } from '@/lib/utils';
 
 const BASE = 'https://kalaland24.com';
 
@@ -30,6 +31,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticUrls: MetadataRoute.Sitemap = [
     entry('', 1.0, 'daily'),
     entry('retail', 0.9, 'daily'),
+    ...RETAIL_CATEGORIES.map(c => entry(`retail/${c.key}`, 0.85, 'daily')),
     entry('wholesale', 0.8),
     entry('blog', 0.7, 'weekly'),
     entry('contact', 0.5, 'monthly'),
