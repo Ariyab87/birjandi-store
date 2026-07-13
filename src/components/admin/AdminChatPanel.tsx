@@ -44,12 +44,17 @@ export default function AdminChatPanel() {
   const [password, setPassword] = useState('');
   const [authed, setAuthed] = useState(false);
   const [authError, setAuthError] = useState('');
-  const [activeTab, setActiveTab] = useState<'chat' | 'prices' | 'seo' | 'orders'>('chat');
+  const [activeTab, setActiveTab] = useState<'chat' | 'prices' | 'seo' | 'orders' | 'reviews'>('chat');
 
   // Orders state
   const [orders, setOrders] = useState<any[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
   const [ordersMsg, setOrdersMsg] = useState('');
+
+  // Reviews state
+  const [pendingReviews, setPendingReviews] = useState<any[]>([]);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
+  const [reviewsMsg, setReviewsMsg] = useState('');
 
   // Chat state
   const [messages, setMessages] = useState<Message[]>([
@@ -220,6 +225,30 @@ export default function AdminChatPanel() {
     } catch { setOrdersMsg('خطا در اتصال'); }
   }
 
+  async function loadPendingReviews() {
+    setReviewsLoading(true);
+    setReviewsMsg('');
+    try {
+      const res = await fetch(`/api/admin/reviews?password=${encodeURIComponent(password)}`);
+      const data = await res.json();
+      if (!res.ok) { setReviewsMsg(data.error || 'خطا'); return; }
+      setPendingReviews(data.reviews || []);
+    } catch { setReviewsMsg('خطا در اتصال'); }
+    finally { setReviewsLoading(false); }
+  }
+
+  async function moderateReview(documentId: string, action: 'approve' | 'reject') {
+    try {
+      const res = await fetch('/api/admin/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password, documentId, action }),
+      });
+      if (!res.ok) { setReviewsMsg(action === 'approve' ? 'تأیید ناموفق بود' : 'رد ناموفق بود'); return; }
+      setPendingReviews(prev => prev.filter(r => r.documentId !== documentId));
+    } catch { setReviewsMsg('خطا در اتصال'); }
+  }
+
   async function loadLog() {
     setLogLoading(true);
     try {
@@ -331,6 +360,14 @@ export default function AdminChatPanel() {
           }`}
         >
           📦 سفارش‌ها
+        </button>
+        <button
+          onClick={() => { setActiveTab('reviews'); loadPendingReviews(); }}
+          className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+            activeTab === 'reviews' ? 'border-gold-500 text-gold-400' : 'border-transparent text-gray-400 hover:text-white'
+          }`}
+        >
+          ⭐ نظرات
         </button>
       </div>
 
@@ -699,6 +736,62 @@ export default function AdminChatPanel() {
                       className="text-xs px-3 py-1.5 rounded-lg border border-red-800 bg-red-900/30 text-red-300 hover:bg-red-800/50 transition-colors mr-auto"
                     >
                       🗑 حذف
+                    </button>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+      )}
+
+      {/* ── REVIEWS TAB ── */}
+      {activeTab === 'reviews' && (
+        <div className="flex-1 overflow-y-auto px-4 py-6 max-w-3xl w-full mx-auto space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-white font-bold">نظرات در انتظار تأیید</h2>
+              <p className="text-gray-400 text-xs mt-1">{pendingReviews.length} نظر — پس از تأیید در صفحه محصول نمایش داده می‌شود</p>
+            </div>
+            <button onClick={loadPendingReviews} className="text-xs text-gray-400 hover:text-white border border-gray-700 px-3 py-1.5 rounded-lg transition-colors">
+              {reviewsLoading ? 'در حال بارگذاری...' : '🔄 بروزرسانی'}
+            </button>
+          </div>
+
+          {reviewsMsg && (
+            <p className="text-sm px-4 py-3 rounded-xl border bg-red-900/30 border-red-700 text-red-300">{reviewsMsg}</p>
+          )}
+
+          {reviewsLoading ? (
+            <p className="text-gray-400 text-sm text-center py-10">در حال بارگذاری...</p>
+          ) : pendingReviews.length === 0 ? (
+            <p className="text-gray-500 text-sm text-center py-10">نظر جدیدی برای تأیید وجود ندارد</p>
+          ) : (
+            pendingReviews.map((r) => {
+              const date = r.createdAt ? new Date(r.createdAt).toLocaleString('fa-IR') : '';
+              return (
+                <div key={r.documentId} className="bg-gray-900 border border-gray-800 rounded-2xl p-5">
+                  <div className="flex items-start justify-between mb-2">
+                    <div>
+                      <p className="text-white font-bold text-sm">{r.name}</p>
+                      <p className="text-gray-500 text-xs mt-0.5">{date}</p>
+                    </div>
+                    <span className="text-gold-400 text-sm" dir="ltr">{'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}</span>
+                  </div>
+                  <p className="text-gray-500 text-xs mb-2">محصول: <span className="text-gray-300" dir="ltr">{r.product_document_id}</span></p>
+                  <p className="text-sm text-gray-300 leading-relaxed mb-4">{r.comment}</p>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => moderateReview(r.documentId, 'approve')}
+                      className="text-xs px-3 py-1.5 rounded-lg border border-green-700 bg-green-900/30 text-green-300 hover:bg-green-800/50 transition-colors"
+                    >
+                      ✅ تأیید و انتشار
+                    </button>
+                    <button
+                      onClick={() => moderateReview(r.documentId, 'reject')}
+                      className="text-xs px-3 py-1.5 rounded-lg border border-red-800 bg-red-900/30 text-red-300 hover:bg-red-800/50 transition-colors"
+                    >
+                      🗑 رد و حذف
                     </button>
                   </div>
                 </div>

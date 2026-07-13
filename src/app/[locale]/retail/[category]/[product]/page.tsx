@@ -1,10 +1,12 @@
 import type { Metadata } from 'next';
-import { getProduct, getProducts, formatPrice, getImageUrl, type Product } from '@/lib/api';
+import { getProduct, getProducts, getApprovedReviews, formatPrice, getImageUrl, type Product } from '@/lib/api';
 import Image from 'next/image';
 import Link from 'next/link';
 import AddToBasketButton from './AddToBasketButton';
 import WhatsAppOrderButton from '@/components/ui/WhatsAppOrderButton';
 import ProductCard from '@/components/product/ProductCard';
+import ReviewsSection from '@/components/product/ReviewsSection';
+import ReviewStars from '@/components/ui/ReviewStars';
 import { BASE_URL, buildTitle, buildDescription, hreflangAlternates, normalizeFarsi } from '@/lib/seo';
 
 const CATEGORY_LABELS: Record<string, { fa: string; en: string }> = {
@@ -125,6 +127,9 @@ export default async function ProductPage({
       .sort((a, b) => b.score - a.score) // stable sort keeps newest-first among ties
       .map(s => s.p);
   } catch { /* Strapi unavailable — skip related section */ }
+
+  const { reviews, average: avgRating, count: reviewCount } = await getApprovedReviews(product.documentId);
+
   const images = product.images || [];
   const catLabel = CATEGORY_LABELS[product.category]?.[fa ? 'fa' : 'en'] || product.category;
   const productUrl = `${BASE_URL}/${locale}/retail/${product.category}/${productId}`;
@@ -173,6 +178,23 @@ export default async function ProductPage({
             itemCondition: 'https://schema.org/NewCondition',
             seller,
           },
+    // Only include real, on-page reviews — never a synthetic rating (Google policy)
+    ...(reviewCount > 0
+      ? {
+          aggregateRating: {
+            '@type': 'AggregateRating',
+            ratingValue: Number(avgRating.toFixed(1)),
+            reviewCount,
+          },
+          review: reviews.slice(0, 20).map(r => ({
+            '@type': 'Review',
+            author: { '@type': 'Person', name: r.name },
+            datePublished: r.createdAt,
+            reviewBody: r.comment,
+            reviewRating: { '@type': 'Rating', ratingValue: r.rating, bestRating: 5, worstRating: 1 },
+          })),
+        }
+      : {}),
   };
 
   // JSON-LD: Breadcrumb schema
@@ -234,7 +256,16 @@ export default async function ProductPage({
 
         <div>
           <p className="text-sm text-gray-400 mb-1">{product.brand}</p>
-          <h1 className="text-3xl font-bold text-navy-700 mb-4">{name}</h1>
+          <h1 className="text-3xl font-bold text-navy-700 mb-2">{name}</h1>
+
+          {reviewCount > 0 && (
+            <a href="#reviews" className="inline-flex items-center gap-1.5 mb-4 hover:opacity-80 transition-opacity">
+              <ReviewStars rating={avgRating} size={15} />
+              <span className="text-xs text-gray-500">
+                {fa ? `(${new Intl.NumberFormat('fa-IR').format(reviewCount)} نظر)` : `(${reviewCount} reviews)`}
+              </span>
+            </a>
+          )}
 
           <div className="bg-cream rounded-xl p-4 mb-6">
             {product.price_on_request ? (
@@ -346,6 +377,17 @@ export default async function ProductPage({
             ))}
           </div>
         </div>
+      </div>
+
+      {/* Reviews */}
+      <div id="reviews">
+        <ReviewsSection
+          productDocumentId={product.documentId}
+          locale={locale}
+          initialReviews={reviews.map(r => ({ documentId: r.documentId, name: r.name, rating: r.rating, comment: r.comment, createdAt: r.createdAt }))}
+          initialAverage={avgRating}
+          initialCount={reviewCount}
+        />
       </div>
 
       {/* Related products */}

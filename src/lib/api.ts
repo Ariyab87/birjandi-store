@@ -137,3 +137,42 @@ export async function getArticleBySlug(slug: string): Promise<Article | null> {
   });
   return res.data[0] || null;
 }
+
+// ── Reviews ──────────────────────────────────────────────────────────────
+// Reviews aren't publicly readable in Strapi (no permissions granted), so
+// this reads with the server-only STRAPI_API_TOKEN — safe here since api.ts
+// review functions are only ever called from server components.
+export interface Review {
+  id: number;
+  documentId: string;
+  name: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+}
+
+export async function getApprovedReviews(
+  productDocumentId: string,
+): Promise<{ reviews: Review[]; average: number; count: number }> {
+  const token = process.env.STRAPI_API_TOKEN || '';
+  try {
+    const params = new URLSearchParams({
+      'filters[product_document_id][$eq]': productDocumentId,
+      'filters[approved][$eq]': 'true',
+      'sort[0]': 'createdAt:desc',
+      'pagination[limit]': '100',
+    });
+    const res = await fetch(`${STRAPI_URL}/api/reviews?${params}`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      next: { revalidate: 60 },
+    });
+    if (!res.ok) return { reviews: [], average: 0, count: 0 };
+    const json = await res.json();
+    const reviews = (json.data || []) as Review[];
+    const count = reviews.length;
+    const average = count ? reviews.reduce((s, r) => s + r.rating, 0) / count : 0;
+    return { reviews, average, count };
+  } catch {
+    return { reviews: [], average: 0, count: 0 };
+  }
+}
