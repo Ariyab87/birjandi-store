@@ -27,6 +27,10 @@ interface LogEntry {
 const CATEGORIES = [
   { key: 'all',      label: 'همه دسته‌ها' },
   { key: 'electric', label: 'برقی' },
+  { key: 'kitchen',  label: 'آشپزخانه' },
+  { key: 'cooling',  label: 'سرمایشی' },
+  { key: 'heating',  label: 'گرمایشی' },
+  { key: 'cleaning', label: 'نظافت' },
   { key: 'metal',    label: 'فلزی' },
   { key: 'melamine', label: 'ملامین' },
   { key: 'glass',    label: 'شکستنی' },
