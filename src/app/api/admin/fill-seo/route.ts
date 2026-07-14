@@ -69,12 +69,15 @@ async function fetchAllProducts(): Promise<ProductRow[]> {
   return out;
 }
 
-async function generateCopy(p: ProductRow) {
+async function generateCopy(p: ProductRow, existingShortDesc?: string) {
   const user = `Product:
 - Persian name: ${p.name_fa}
 - English name: ${p.name_en}
 - Brand: ${p.brand}
-- Category: ${CAT_FA[p.category] || p.category} (${CAT_EN[p.category] || p.category})`;
+- Category: ${CAT_FA[p.category] || p.category} (${CAT_EN[p.category] || p.category})` +
+    (existingShortDesc
+      ? `\n\nExisting short description already entered by the store owner (these are REAL facts — you MUST preserve every one of them in description_fa/description_en, just expand naturally around them, never contradict or drop any detail): "${existingShortDesc}"`
+      : '');
 
   const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
@@ -114,7 +117,7 @@ export async function GET(req: NextRequest) {
 // pre-written copy is applied instead of AI generation (same empty-field guard).
 export async function POST(req: NextRequest) {
   try {
-    const { password, batchSize = 5, items } = await req.json();
+    const { password, batchSize = 5, items, expandShort } = await req.json();
     if (password !== ADMIN_PASSWORD) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     if (!STRAPI_TOKEN) {
       return NextResponse.json({ error: 'STRAPI_API_TOKEN not set' }, { status: 500 });
@@ -153,15 +156,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'GROQ_API_KEY not set' }, { status: 500 });
     }
 
+    const isShort = (p: ProductRow) => !empty(p.description_fa) && p.description_fa!.length < 300;
     const products = await fetchAllProducts();
-    const pending = products.filter(p => missingFields(p).length > 0);
+    const pending = products.filter(p => missingFields(p).length > 0 || (expandShort && isShort(p)));
     const batch = pending.slice(0, Math.min(batchSize, 10));
 
     const results: Array<{ documentId: string; name: string; wrote?: string[]; error?: string }> = [];
     for (const p of batch) {
       const fields = missingFields(p);
+      const expandingDesc = expandShort && isShort(p) && !fields.includes('description_fa');
+      if (expandingDesc) fields.push('description_fa');
       try {
-        const gen = await generateCopy(p);
+        const gen = await generateCopy(p, expandingDesc ? p.description_fa! : undefined);
         const patch: Record<string, string> = {};
         for (const k of fields) if (gen[k]) patch[k] = gen[k];
         const put = await fetch(`${STRAPI_URL}/api/products/${p.documentId}`, {
