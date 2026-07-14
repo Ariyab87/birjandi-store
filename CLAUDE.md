@@ -63,15 +63,15 @@ cd ~/Desktop/birjandi-backend && npm rebuild better-sqlite3 && npm run develop
 **Frontend** `/Users/ariya/Desktop/Birjandi-store/.env.local`:
 ```env
 NEXT_PUBLIC_STRAPI_URL=http://localhost:1337
-RESEND_API_KEY=re_TTYDYEyG_PdF4QTyR3f8N9b44Jy14ah6o
+RESEND_API_KEY=<in .env.local — NEVER commit real keys, this repo is public>
 ORDER_RECIPIENT_EMAIL=ariyabirjandi87@gmail.com
 ```
 
 **Backend** `/Users/ariya/Desktop/birjandi-backend/.env` (has all Strapi secrets +):
 ```env
 CLOUDINARY_NAME=doi5encow
-CLOUDINARY_KEY=299764261128824
-CLOUDINARY_SECRET=Pjvm4hNziZakAvG3YGOjtaRrAjo
+CLOUDINARY_KEY=<in backend .env — NEVER commit real keys, this repo is public>
+CLOUDINARY_SECRET=<in backend .env — NEVER commit real keys, this repo is public>
 ```
 
 ---
