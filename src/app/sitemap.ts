@@ -1,6 +1,6 @@
 import { MetadataRoute } from 'next';
 import { getProducts, getArticles } from '@/lib/api';
-import { RETAIL_CATEGORIES } from '@/lib/utils';
+import { RETAIL_CATEGORIES, WHOLESALE_BUSINESS_TYPES } from '@/lib/utils';
 
 const BASE = 'https://kalaland24.com';
 
@@ -33,6 +33,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     entry('retail', 0.9, 'daily'),
     ...RETAIL_CATEGORIES.map(c => entry(`retail/${c.key}`, 0.85, 'daily')),
     entry('wholesale', 0.8),
+    ...WHOLESALE_BUSINESS_TYPES.map(b => entry(`wholesale/${b.key}`, 0.7)),
     entry('blog', 0.7, 'weekly'),
     entry('contact', 0.5, 'monthly'),
   ];

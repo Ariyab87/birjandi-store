@@ -1,5 +1,6 @@
 import { setRequestLocale } from 'next-intl/server';
 import ChatCard from '@/components/chat/ChatCard';
+import { hreflangAlternates } from '@/lib/seo';
 
 export async function generateMetadata({ params: { locale } }: { params: { locale: string } }) {
   const fa = locale === 'fa';
@@ -10,6 +11,7 @@ export async function generateMetadata({ params: { locale } }: { params: { local
     description: fa
       ? 'برای سفارش، استعلام قیمت لوازم خانگی و برقی یا هر سوالی با کالالند۲۴ در تماس باشید — واتساپ، تلفن ۰۹۹۳۴۶۴۲۴۵۵ و دستیار هوشمند.'
       : 'Contact Kalaland24 for orders, price enquiries or any questions — WhatsApp, phone +98 993 464 2455, and AI assistant.',
+    alternates: hreflangAlternates('contact', locale),
   };
 }
 

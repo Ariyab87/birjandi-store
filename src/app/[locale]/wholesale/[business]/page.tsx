@@ -1,10 +1,12 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Suspense } from 'react';
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import { getProducts } from '@/lib/api';
 import ProductCard from '@/components/product/ProductCard';
 import SearchAndFilter from '@/components/retail/SearchAndFilter';
 import { WHOLESALE_BUSINESS_TYPES } from '@/lib/utils';
+import { BASE_URL, hreflangAlternates, ogImages } from '@/lib/seo';
 
 export function generateStaticParams() {
   return WHOLESALE_BUSINESS_TYPES.map((b) => ({ business: b.key }));
@@ -17,6 +19,33 @@ const LABELS: Record<string, { fa: string; en: string }> = {
   hotel:      { fa: 'هتل',       en: 'Hotel' },
   office:     { fa: 'دفتر کار',  en: 'Office' },
 };
+
+export async function generateMetadata({
+  params: { locale, business },
+}: {
+  params: { locale: string; business: string };
+}): Promise<Metadata> {
+  const fa = locale === 'fa';
+  const label = LABELS[business] ?? { fa: business, en: business };
+  const title = fa
+    ? `فروش عمده لوازم و ظروف برای ${label.fa} | قیمت عمده | کالالند۲۴`
+    : `Wholesale Appliances & Cookware for ${label.en} | Kalaland24`;
+  const description = fa
+    ? `تأمین عمده ظروف، لوازم آشپزخانه و تجهیزات برای ${label.fa} با قیمت ویژه عمده‌فروشی و ارسال به سراسر ایران از کالالند۲۴.`
+    : `Wholesale supply of cookware, kitchen appliances and equipment for ${label.en} businesses. Special bulk prices, delivery across Iran from Kalaland24.`;
+  return {
+    title,
+    description,
+    alternates: hreflangAlternates(`wholesale/${business}`, locale),
+    openGraph: {
+      title,
+      description,
+      url: `${BASE_URL}/${locale}/wholesale/${business}`,
+      type: 'website',
+      images: ogImages(title),
+    },
+  };
+}
 
 export default async function WholesaleBusinessPage({
   params: { locale, business },
