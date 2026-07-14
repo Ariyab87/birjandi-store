@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import { getProduct, getProducts, getApprovedReviews, formatPrice, getImageUrl, type Product } from '@/lib/api';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -79,12 +80,9 @@ export default async function ProductPage({
     const res = await getProduct(productId);
     product = res.data;
   } catch {
-    return (
-      <div className="max-w-4xl mx-auto px-4 py-16 text-center text-gray-400">
-        Product not found or Strapi is not connected.
-      </div>
-    );
+    notFound();
   }
+  if (!product) notFound();
 
   const fa = locale === 'fa';
   const name = fa ? product.name_fa : product.name_en;

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { setRequestLocale } from 'next-intl/server';
@@ -53,14 +54,7 @@ export default async function ArticlePage({
     others = (await getArticles(1, 4)).data.filter(a => a.slug !== slug).slice(0, 3);
   } catch { /* Strapi unavailable */ }
 
-  if (!article) {
-    return (
-      <div className="max-w-3xl mx-auto px-4 py-24 text-center text-gray-400">
-        {fa ? 'مقاله پیدا نشد.' : 'Article not found.'}
-        <div className="mt-4"><Link href={`/${locale}/blog`} className="text-gold-600 hover:underline">{fa ? '← بازگشت به مجله' : '← Back to magazine'}</Link></div>
-      </div>
-    );
-  }
+  if (!article) notFound();
 
   const articleUrl = `${BASE_URL}/${locale}/blog/${slug}`;
   const jsonLd = {
