@@ -66,6 +66,11 @@ export default function Footer() {
           </p>
         </div>
       </div>
+      <div className="border-t border-white/10 max-w-7xl mx-auto px-4 md:px-10 py-4">
+        <p className="text-amber-300/90 text-xs leading-relaxed text-center max-w-3xl mx-auto">
+          {t('securityNotice')}
+        </p>
+      </div>
       <div className="border-t border-white/10 text-center py-4 text-xs text-gray-400">
         © {new Date().getFullYear()} کالالند۲۴ — {t('rights')}
       </div>
