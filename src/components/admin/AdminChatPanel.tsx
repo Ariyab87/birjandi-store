@@ -76,6 +76,9 @@ export default function AdminChatPanel() {
   const [seoLoading, setSeoLoading] = useState(false);
   const [seoMsg, setSeoMsg] = useState('');
   const [autoGenLoading, setAutoGenLoading] = useState(false);
+  const [expandRunning, setExpandRunning] = useState(false);
+  const [expandStatus, setExpandStatus] = useState('');
+  const [expandStopRef] = useState({ current: false });
 
   // Price management state
   const [category, setCategory] = useState('all');
@@ -167,9 +170,15 @@ export default function AdminChatPanel() {
   async function loadSeoReport() {
     setSeoLoading(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337'}/api/products?pagination[limit]=500`);
-      const data = await res.json();
-      setSeoProducts(data.data || []);
+      const base = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337';
+      const all: any[] = [];
+      for (let page = 1; ; page++) {
+        const res = await fetch(`${base}/api/products?pagination[page]=${page}&pagination[pageSize]=100`);
+        const data = await res.json();
+        all.push(...(data.data || []));
+        if (page >= (data.meta?.pagination?.pageCount || 1)) break;
+      }
+      setSeoProducts(all);
     } catch { setSeoMsg('خطا در اتصال به Strapi'); }
     finally { setSeoLoading(false); }
   }
@@ -192,6 +201,50 @@ export default function AdminChatPanel() {
       setSeoMsg(`پیشنهاد برای ${name}:\n${data.reply}`);
     } catch { setSeoMsg('خطا در تولید متن سئو'); }
     finally { setAutoGenLoading(false); }
+  }
+
+  async function runExpandShort() {
+    setExpandRunning(true);
+    expandStopRef.current = false;
+    let consecutiveFails = 0;
+    try {
+      for (let i = 0; i < 60; i++) {
+        if (expandStopRef.current) { setExpandStatus('متوقف شد.'); break; }
+        setExpandStatus(`در حال پردازش دسته ${i + 1}...`);
+        let data: any;
+        try {
+          const res = await fetch('/api/admin/fill-seo', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password, batchSize: 5, expandShort: true }),
+          });
+          data = await res.json();
+        } catch {
+          setExpandStatus('خطا در اتصال. دوباره تلاش می‌شود...');
+          await new Promise(r => setTimeout(r, 5000));
+          continue;
+        }
+        if (data.error) { setExpandStatus(`خطا: ${data.error}`); break; }
+        if (data.processed === 0) {
+          setExpandStatus('✅ همه محصولات تکمیل شدند!');
+          break;
+        }
+        if (data.succeeded === 0) {
+          consecutiveFails++;
+          if (consecutiveFails >= 3) {
+            setExpandStatus(`سهمیه روزانه هوش مصنوعی تمام شد. ${data.remaining} محصول باقی مانده — فردا دوباره روی دکمه بزنید تا ادامه پیدا کند.`);
+            break;
+          }
+        } else {
+          consecutiveFails = 0;
+          setExpandStatus(`${data.succeeded} محصول تکمیل شد — ${data.remaining} محصول باقی مانده...`);
+        }
+        await new Promise(r => setTimeout(r, 18000));
+      }
+    } finally {
+      setExpandRunning(false);
+      loadSeoReport();
+    }
   }
 
   async function loadOrders() {
@@ -515,6 +568,39 @@ export default function AdminChatPanel() {
                     <p className="text-green-400 text-sm">✅ همه محصولات سئو کامل دارند!</p>
                   )}
                 </div>
+
+                {/* Bulk expand short descriptions */}
+                {(noDesc300.length > 0 || expandRunning) && (
+                  <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 space-y-3">
+                    <h3 className="text-white font-bold">✨ تکمیل خودکار توضیحات کوتاه</h3>
+                    <p className="text-gray-400 text-xs leading-relaxed">
+                      این دکمه به‌صورت خودکار برای محصولاتی که توضیح کوتاه دارند (مثل &quot;900وات&quot;) یک توضیح کامل‌تر
+                      می‌نویسد و اطلاعات فعلی (مثل توان یا مشخصات) را حفظ می‌کند، نه پاک. هر بار چند محصول را پردازش
+                      می‌کند و کمی صبر می‌کند تا به محدودیت هوش مصنوعی نخوریم. اگر سهمیه روزانه تمام شود، متوقف می‌شود
+                      و می‌توانید فردا دوباره روی دکمه بزنید تا از همان‌جا ادامه پیدا کند.
+                    </p>
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={runExpandShort}
+                        disabled={expandRunning}
+                        className="bg-gold-500 hover:bg-gold-600 disabled:opacity-40 text-white px-5 py-2.5 rounded-xl text-sm transition-colors"
+                      >
+                        {expandRunning ? 'در حال اجرا...' : '▶️ شروع تکمیل خودکار'}
+                      </button>
+                      {expandRunning && (
+                        <button
+                          onClick={() => { expandStopRef.current = true; }}
+                          className="text-xs text-gray-400 hover:text-white border border-gray-700 px-4 py-2 rounded-lg transition-colors"
+                        >
+                          ⏹ توقف
+                        </button>
+                      )}
+                    </div>
+                    {expandStatus && (
+                      <p className="text-gold-300 text-xs">{expandStatus}</p>
+                    )}
+                  </div>
+                )}
 
                 {seoMsg && (
                   <div className="bg-gray-800 border border-gray-700 rounded-xl p-4 text-gray-200 text-sm whitespace-pre-wrap">
