@@ -71,6 +71,15 @@
   }
 }
 
+/* Mobile: force >=16px on all form fields so iOS Safari / Android Chrome
+   don't auto-zoom on focus. Outside @layer so it beats Tailwind utility
+   classes like text-sm that would otherwise shrink inputs back below 16px. */
+@media (max-width: 767px) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}
+
 @layer utilities {
   .scrollbar-hide {
     -ms-overflow-style: none;
