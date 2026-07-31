@@ -4,7 +4,7 @@ import Image from 'next/image';
 import type { Metadata } from 'next';
 import { getFeaturedProducts } from '@/lib/api';
 import ProductCard from '@/components/product/ProductCard';
-import { BASE_URL, hreflangAlternates, ogImages, SOCIAL_LINKS } from '@/lib/seo';
+import { BASE_URL, hreflangAlternates, ogImages, SOCIAL_LINKS, safeJsonLd } from '@/lib/seo';
 
 export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
   const fa = locale === 'fa';
@@ -116,9 +116,9 @@ export default async function HomePage({
 
   return (
     <div className="bg-white">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(navJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(websiteJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(orgJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(navJsonLd) }} />
 
       {/* ── HERO ── scroll-driven 3D video */}
       <section className="relative min-h-screen flex items-center overflow-hidden border-b border-gray-100" style={{ marginTop: '-64px' }}>

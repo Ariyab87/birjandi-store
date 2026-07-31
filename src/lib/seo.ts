@@ -1,6 +1,19 @@
 export const BASE_URL = 'https://kalaland24.com';
 export const OG_IMAGE = `${BASE_URL}/logo.png`;
 
+/**
+ * Safely serialize an object for injection into a `<script type="application/ld+json">`
+ * via dangerouslySetInnerHTML. JSON.stringify alone does NOT escape `</`, so
+ * user-generated content flowing into JSON-LD (e.g. an approved review comment)
+ * containing `</script><script>...` would close the JSON-LD tag early and
+ * execute as real JavaScript — a stored XSS. Escaping every `<` as its
+ * unicode form prevents that while producing an identically-parsed JSON
+ * object for crawlers/browsers (the escape is invisible to JSON.parse).
+ */
+export function safeJsonLd(data: unknown): string {
+  return JSON.stringify(data).replace(/</g, '\\u003c');
+}
+
 export const SITE_NAME = { fa: 'کالالند۲۴', en: 'Kalaland24' };
 
 // Social profiles — used for Organization schema `sameAs` and contact

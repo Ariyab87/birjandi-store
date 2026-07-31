@@ -8,7 +8,7 @@ import SearchAndFilter from '@/components/retail/SearchAndFilter';
 import PromoStrip from '@/components/retail/PromoStrip';
 import VideoReel from '@/components/retail/VideoReel';
 import { RETAIL_CATEGORIES } from '@/lib/utils';
-import { BASE_URL } from '@/lib/seo';
+import { BASE_URL, safeJsonLd } from '@/lib/seo';
 
 const PAGE_SIZE = 20;
 
@@ -102,7 +102,7 @@ export default async function RetailCatalog({ locale, category, searchParams }: 
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(itemListJsonLd) }} />
 
       {/* Hero banner */}
       <div className="bg-gradient-to-l from-navy-800 to-navy-900 text-white py-6 px-4">

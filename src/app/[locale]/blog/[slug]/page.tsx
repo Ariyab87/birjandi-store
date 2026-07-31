@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { setRequestLocale } from 'next-intl/server';
 import { getArticleBySlug, getArticles, getImageUrl, type Article } from '@/lib/api';
 import { markdownToHtml } from '@/lib/markdown';
-import { BASE_URL, hreflangAlternates, truncate, ogImages } from '@/lib/seo';
+import { BASE_URL, hreflangAlternates, truncate, ogImages, safeJsonLd } from '@/lib/seo';
 
 export const revalidate = 300;
 
@@ -83,8 +83,8 @@ export default async function ArticlePage({
 
   return (
     <div className="bg-gray-50 min-h-screen">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(breadcrumbJsonLd) }} />
 
       <article className="max-w-3xl mx-auto px-4 py-10">
         <nav className="flex items-center gap-1.5 text-xs text-gray-400 mb-6 flex-wrap" aria-label="breadcrumb">

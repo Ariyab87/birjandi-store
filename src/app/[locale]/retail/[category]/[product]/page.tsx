@@ -8,7 +8,7 @@ import WhatsAppOrderButton from '@/components/ui/WhatsAppOrderButton';
 import ProductCard from '@/components/product/ProductCard';
 import ReviewsSection from '@/components/product/ReviewsSection';
 import ReviewStars from '@/components/ui/ReviewStars';
-import { BASE_URL, buildTitle, buildDescription, hreflangAlternates, normalizeFarsi } from '@/lib/seo';
+import { BASE_URL, buildTitle, buildDescription, hreflangAlternates, normalizeFarsi, safeJsonLd } from '@/lib/seo';
 
 const CATEGORY_LABELS: Record<string, { fa: string; en: string }> = {
   electric:  { fa: 'برقی',       en: 'Electric' },
@@ -217,8 +217,8 @@ export default async function ProductPage({
       </div>
 
     <div className="max-w-5xl mx-auto px-4 py-10 relative">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(productJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(breadcrumbJsonLd) }} />
 
       {/* Breadcrumb */}
       <nav className="flex items-center gap-1.5 text-xs text-gray-400 mb-6 flex-wrap" aria-label="breadcrumb">
