@@ -44,14 +44,59 @@ async function saveOrderToStrapi(order: {
   }
 }
 
+// Abuse guard: every order sends an email (Resend quota + sender reputation)
+// and writes a Strapi row, so an unthrottled endpoint is a spam amplifier.
+// A real customer places at most a couple of orders a day.
+const RATE = { perMinute: 3, perDay: 15 };
+const hits = new Map<string, number[]>();
+
+function rateLimited(ip: string): boolean {
+  const now = Date.now();
+  const day = (hits.get(ip) || []).filter(t => now - t < 24 * 60 * 60 * 1000);
+  const minute = day.filter(t => now - t < 60_000);
+  if (minute.length >= RATE.perMinute || day.length >= RATE.perDay) {
+    hits.set(ip, day);
+    return true;
+  }
+  day.push(now);
+  hits.set(ip, day);
+  if (hits.size > 5000) hits.clear();
+  return false;
+}
+
+/** Trim and cap a free-text field so oversized payloads can't bloat emails/DB. */
+const cap = (v: unknown, max: number) => String(v ?? '').trim().slice(0, max);
+
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const { type, customer, items, total } = body;
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+    if (rateLimited(ip)) {
+      return NextResponse.json(
+        { error: 'تعداد سفارش‌های ثبت‌شده از این آدرس زیاد است. لطفاً کمی بعد دوباره تلاش کنید یا از طریق واتساپ سفارش دهید.' },
+        { status: 429 },
+      );
+    }
 
-    if (!customer?.name || !customer?.phone || !customer?.address || !items?.length) {
+    const body = await req.json();
+    const { type, items, total } = body;
+    const raw = body.customer ?? {};
+
+    if (!raw.name || !raw.phone || !raw.address || !items?.length) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
+    if (!Array.isArray(items) || items.length > 100) {
+      return NextResponse.json({ error: 'Invalid items' }, { status: 400 });
+    }
+
+    // Cap every free-text field — the values land in an email and the database.
+    const customer = {
+      name: cap(raw.name, 100),
+      phone: cap(raw.phone, 30),
+      address: cap(raw.address, 500),
+      ...(raw.email ? { email: cap(raw.email, 150) } : {}),
+      ...(raw.businessName ? { businessName: cap(raw.businessName, 150) } : {}),
+      ...(raw.notes ? { notes: cap(raw.notes, 1000) } : {}),
+    };
 
     const orderId = generateOrderId();
 
