@@ -1,4 +1,5 @@
 import { useTranslations } from 'next-intl';
+import EnamadSeal from './EnamadSeal';
 
 const WA_ICON = (
   <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -22,22 +23,7 @@ export default function Footer() {
           <h4 className="font-semibold mb-3">{t('contact')}</h4>
           <p className="text-gray-300 text-sm mt-1" dir="ltr">+98 993 464 2455</p>
           <p className="text-gold-400 text-sm mt-2 font-medium">{t('support')}</p>
-          {/* Enamad trust seal */}
-          <a
-            referrerPolicy="origin"
-            target="_blank"
-            href="https://trustseal.enamad.ir/?id=6834202&Code=TDgtiQs8u7Ad5lkk0PzMYIaEQiVFPzI7"
-            className="inline-block mt-4 bg-white rounded-lg p-1"
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              referrerPolicy="origin"
-              src="https://trustseal.enamad.ir/logo.aspx?id=6834202&Code=TDgtiQs8u7Ad5lkk0PzMYIaEQiVFPzI7"
-              alt="نماد اعتماد الکترونیکی"
-              style={{ cursor: 'pointer' }}
-              {...{ code: 'TDgtiQs8u7Ad5lkk0PzMYIaEQiVFPzI7' }}
-            />
-          </a>
+          <EnamadSeal />
         </div>
         <div>
           <h4 className="font-semibold mb-3">{t('social')}</h4>
