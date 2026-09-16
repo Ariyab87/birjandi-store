@@ -1,68 +1,76 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-const ADMIN_PASSWORD = process.env.ADMIN_CHAT_PASSWORD || 'bshop-admin-2024';
-const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337';
-const STRAPI_TOKEN = process.env.STRAPI_API_TOKEN || '';
+import { revalidateTag } from 'next/cache';
+import { sql, isAdmin, newDocumentId } from '@/lib/db';
+import { rowToArticle, TAGS } from '@/lib/api';
+import { uploadImage, cloudinaryConfigured } from '@/lib/cloudinary';
 
 export const maxDuration = 60;
 
-// Fetches an image from a URL and uploads it to Strapi's media library
-// (stored in Cloudinary). Returns the file id to attach as `cover`.
-async function uploadCoverFromUrl(coverUrl: string, slug: string): Promise<number | null> {
-  const imgRes = await fetch(coverUrl);
-  if (!imgRes.ok) return null;
-  const blob = await imgRes.blob();
-  const form = new FormData();
-  form.append('files', blob, `article-${slug}.jpg`);
-  const up = await fetch(`${STRAPI_URL}/api/upload`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${STRAPI_TOKEN}` },
-    body: form,
-  });
-  if (!up.ok) return null;
-  const files = await up.json();
-  return files?.[0]?.id ?? null;
+const FIELDS = ['title_fa', 'slug', 'excerpt_fa', 'content_fa', 'seo_title', 'seo_description'] as const;
+
+function pickFields(article: Record<string, unknown>) {
+  const data: Record<string, unknown> = {};
+  for (const k of FIELDS) if (article[k] !== undefined) data[k] = article[k] === null ? null : String(article[k]);
+  return data;
+}
+
+// GET ?password=... — all articles (including unpublished), newest first
+export async function GET(req: NextRequest) {
+  if (!isAdmin(req.nextUrl.searchParams.get('password'))) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  const rows = await sql`SELECT * FROM articles ORDER BY created_at DESC`;
+  return NextResponse.json({ articles: rows.map(r => ({ ...rowToArticle(r), published: !!r.published_at })) });
 }
 
 // POST — body: { password, article: { title_fa, slug, excerpt_fa, content_fa, seo_title, seo_description, cover_url? } }
-// Creates and publishes a blog article; cover_url is fetched and attached as media.
-// PUT  — body: { password, documentId, article: {...partial fields, cover_url?} } updates an existing article.
+// Creates and publishes a blog article; cover_url is fetched into Cloudinary.
+// PUT  — body: { password, documentId, article: {...partial fields, cover_url?, published?} } updates an article.
 async function handle(req: NextRequest, mode: 'create' | 'update') {
   try {
-    const { password, article, documentId } = await req.json();
-    if (password !== ADMIN_PASSWORD) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    if (!STRAPI_TOKEN) return NextResponse.json({ error: 'STRAPI_API_TOKEN not set' }, { status: 500 });
-    if (mode === 'create' && (!article?.title_fa || !article?.slug || !article?.content_fa)) {
+    const { password, article = {}, documentId } = await req.json();
+    if (!isAdmin(password)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (mode === 'create' && (!article.title_fa || !article.slug || !article.content_fa)) {
       return NextResponse.json({ error: 'title_fa, slug, content_fa required' }, { status: 400 });
     }
     if (mode === 'update' && !documentId) {
       return NextResponse.json({ error: 'documentId required' }, { status: 400 });
     }
 
-    const data = { ...article };
-    if (data.cover_url) {
-      const coverId = await uploadCoverFromUrl(data.cover_url, data.slug || documentId);
-      delete data.cover_url;
-      if (coverId) data.cover = coverId;
+    const data: Record<string, unknown> = pickFields(article);
+    let cover = false;
+    if (typeof article.cover_url === 'string' && article.cover_url.startsWith('https://res.cloudinary.com/')) {
+      // already uploaded through /api/admin/upload
+      data.cover = sql.json({ url: article.cover_url });
+      cover = true;
+    } else if (article.cover_url && cloudinaryConfigured()) {
+      try {
+        data.cover = sql.json((await uploadImage(String(article.cover_url), 'kalaland24/articles')) as any);
+        cover = true;
+      } catch (err) {
+        console.error('article cover upload failed:', err);
+      }
+    }
+    if (typeof article.published === 'boolean') {
+      data.published_at = article.published ? new Date() : null;
     }
 
-    const url = mode === 'create'
-      ? `${STRAPI_URL}/api/articles?status=published`
-      : `${STRAPI_URL}/api/articles/${documentId}?status=published`;
-    const res = await fetch(url, {
-      method: mode === 'create' ? 'POST' : 'PUT',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${STRAPI_TOKEN}` },
-      body: JSON.stringify({ data }),
-    });
-    if (!res.ok) {
-      return NextResponse.json(
-        { error: `Strapi ${res.status}: ${(await res.text()).slice(0, 300)}` },
-        { status: 502 },
-      );
+    let row;
+    if (mode === 'create') {
+      [row] = await sql`
+        INSERT INTO articles ${sql({ document_id: newDocumentId(), published_at: new Date(), ...data })}
+        RETURNING *`;
+    } else {
+      if (!Object.keys(data).length) return NextResponse.json({ error: 'nothing to update' }, { status: 400 });
+      [row] = await sql`
+        UPDATE articles SET ${sql(data)}, updated_at = NOW() WHERE document_id = ${documentId} RETURNING *`;
+      if (!row) return NextResponse.json({ error: 'article not found' }, { status: 404 });
     }
-    const json = await res.json();
-    return NextResponse.json({ success: true, documentId: json.data?.documentId, slug: json.data?.slug, cover: !!data.cover });
-  } catch (err) {
+
+    revalidateTag(TAGS.articles);
+    return NextResponse.json({ success: true, documentId: row.document_id, slug: row.slug, cover });
+  } catch (err: any) {
+    if (err?.code === '23505') return NextResponse.json({ error: 'این slug قبلاً استفاده شده است' }, { status: 409 });
     console.error('admin articles error:', err);
     return NextResponse.json({ error: 'Internal error' }, { status: 500 });
   }
@@ -70,3 +78,15 @@ async function handle(req: NextRequest, mode: 'create' | 'update') {
 
 export async function POST(req: NextRequest) { return handle(req, 'create'); }
 export async function PUT(req: NextRequest) { return handle(req, 'update'); }
+
+// DELETE ?password=...&documentId=...
+export async function DELETE(req: NextRequest) {
+  if (!isAdmin(req.nextUrl.searchParams.get('password'))) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  const documentId = req.nextUrl.searchParams.get('documentId');
+  if (!documentId) return NextResponse.json({ error: 'documentId required' }, { status: 400 });
+  const result = await sql`DELETE FROM articles WHERE document_id = ${documentId}`;
+  revalidateTag(TAGS.articles);
+  return NextResponse.json({ success: result.count > 0 });
+}

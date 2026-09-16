@@ -4,7 +4,8 @@ import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { Product, formatPrice, getImageUrl } from '@/lib/api';
+import type { Product } from '@/lib/api';
+import { formatPrice, getImageUrl } from '@/lib/format';
 import { useBasket } from '../basket/BasketContext';
 
 interface Props {

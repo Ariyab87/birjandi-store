@@ -1,4 +1,4 @@
-// Minimal markdown → HTML for article content authored by us in Strapi.
+// Minimal markdown → HTML for article content authored in the admin panel.
 // Supports: ## / ### headings, paragraphs, **bold**, [links](url), - lists.
 // Content is admin-authored only, never user input.
 

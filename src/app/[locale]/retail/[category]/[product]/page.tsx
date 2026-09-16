@@ -35,8 +35,8 @@ export async function generateMetadata({
   params: { locale: string; category: string; product: string };
 }): Promise<Metadata> {
   try {
-    const res = await getProduct(productId);
-    const p = res.data;
+    const p = (await getProduct(productId)).data;
+    if (!p) return {};
     const fa = locale === 'fa';
     const name = fa ? p.name_fa : p.name_en;
     const title = p.seo_title || buildTitle(name, locale);
@@ -106,11 +106,7 @@ export default async function ProductPage({
   let related: Product[] = [];
   try {
     const rel = await getProducts(
-      {
-        'filters[category][$eq]': product.category,
-        'filters[documentId][$ne]': product.documentId,
-        sort: 'createdAt:desc',
-      },
+      { category: product.category, excludeDocumentId: product.documentId, sort: 'createdAt:desc' },
       1,
       100,
     );
@@ -124,7 +120,7 @@ export default async function ProductPage({
       })
       .sort((a, b) => b.score - a.score) // stable sort keeps newest-first among ties
       .map(s => s.p);
-  } catch { /* Strapi unavailable — skip related section */ }
+  } catch { /* database unavailable — skip related section */ }
 
   const { reviews, average: avgRating, count: reviewCount } = await getApprovedReviews(product.documentId);
 

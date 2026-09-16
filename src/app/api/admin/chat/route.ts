@@ -1,9 +1,9 @@
 import Groq from 'groq-sdk';
 import { NextRequest, NextResponse } from 'next/server';
-
-const ADMIN_PASSWORD = process.env.ADMIN_CHAT_PASSWORD || 'bshop-admin-2024';
-const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337';
-const STRAPI_TOKEN = process.env.STRAPI_API_TOKEN || '';
+import { isAdmin } from '@/lib/db';
+import { getProducts, type Product } from '@/lib/api';
+import { getProductAdmin, updateProduct } from '@/lib/adminProducts';
+import { runBulkPrice } from '@/lib/bulkPrice';
 
 // Price change log stored in memory per server restart (use a DB in production)
 const priceChangeLog: Array<{
@@ -113,44 +113,26 @@ const tools: Groq.Chat.ChatCompletionTool[] = [
   },
 ];
 
+const toolProduct = (p: Product) => ({
+  id: p.documentId,
+  name_fa: p.name_fa,
+  name_en: p.name_en,
+  brand: p.brand,
+  category: p.category,
+  retail_price: p.retail_price,
+  wholesale_price: p.wholesale_price,
+  stock_status: p.stock_status,
+});
+
 async function get_product(query: string) {
-  const params = new URLSearchParams({
-    'filters[$or][0][name_fa][$containsi]': query,
-    'filters[$or][1][name_en][$containsi]': query,
-    'filters[$or][2][brand][$containsi]': query,
-    'pagination[limit]': '10',
-  });
-  const res = await fetch(`${STRAPI_URL}/api/products?${params}`);
-  const data = await res.json();
-  if (!data.data || data.data.length === 0) return { found: false, message: `No product found matching "${query}"` };
-  return {
-    found: true,
-    products: data.data.map((p: any) => ({
-      id: p.documentId,
-      name_fa: p.name_fa,
-      name_en: p.name_en,
-      brand: p.brand,
-      category: p.category,
-      retail_price: p.retail_price,
-      wholesale_price: p.wholesale_price,
-      stock_status: p.stock_status,
-    })),
-  };
+  const { data } = await getProducts({ q: String(query || '') }, 1, 10);
+  if (data.length === 0) return { found: false, message: `No product found matching "${query}"` };
+  return { found: true, products: data.map(toolProduct) };
 }
 
 async function get_all_products() {
-  const res = await fetch(`${STRAPI_URL}/api/products?pagination[limit]=100`);
-  const data = await res.json();
-  return {
-    products: (data.data || []).map((p: any) => ({
-      id: p.documentId,
-      name_fa: p.name_fa,
-      name_en: p.name_en,
-      brand: p.brand,
-      retail_price: p.retail_price,
-      wholesale_price: p.wholesale_price,
-    })),
-  };
+  const { data } = await getProducts({}, 1, 100);
+  return { products: data.map(toolProduct) };
 }
 
 async function update_product_price(params: {
@@ -160,62 +142,39 @@ async function update_product_price(params: {
   new_wholesale_price?: number;
   reason: string;
 }) {
-  if (!STRAPI_TOKEN) {
-    return { success: false, error: 'STRAPI_API_TOKEN not configured. Please add it to .env.local.' };
-  }
+  const current = await getProductAdmin(params.product_id);
+  if (!current) return { success: false, error: 'Product not found' };
 
-  // Fetch current prices first for logging
-  const currentRes = await fetch(`${STRAPI_URL}/api/products/${params.product_id}`);
-  const currentData = await currentRes.json();
-  const current = currentData.data;
-
-  const updateBody: any = { data: {} };
+  const patch: Record<string, number | undefined> = {};
   if (params.price_type === 'retail_price' || params.price_type === 'both') {
-    updateBody.data.retail_price = params.new_retail_price;
+    patch.retail_price = params.new_retail_price;
   }
   if (params.price_type === 'wholesale_price' || params.price_type === 'both') {
-    updateBody.data.wholesale_price = params.new_wholesale_price;
+    patch.wholesale_price = params.new_wholesale_price;
   }
 
-  const res = await fetch(`${STRAPI_URL}/api/products/${params.product_id}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${STRAPI_TOKEN}`,
-    },
-    body: JSON.stringify(updateBody),
-  });
-
-  if (!res.ok) {
-    const err = await res.json();
-    return { success: false, error: err.error?.message || 'Update failed' };
+  try {
+    await updateProduct(params.product_id, patch);
+  } catch (err) {
+    return { success: false, error: String(err) };
   }
 
   // Log the change
   priceChangeLog.unshift({
     productId: params.product_id,
-    productName: current?.name_fa || current?.name_en || params.product_id,
-    oldPrice: params.price_type === 'wholesale_price' ? current?.wholesale_price : current?.retail_price,
+    productName: current.name_fa || current.name_en || params.product_id,
+    oldPrice: (params.price_type === 'wholesale_price' ? current.wholesale_price : current.retail_price) ?? 0,
     newPrice: params.price_type === 'wholesale_price' ? (params.new_wholesale_price || 0) : (params.new_retail_price || 0),
     reason: params.reason,
     timestamp: new Date().toLocaleString('fa-IR'),
   });
 
-  return { success: true, updated: updateBody.data, productName: current?.name_fa || current?.name_en };
+  return { success: true, updated: patch, productName: current.name_fa || current.name_en };
 }
 
 async function bulk_update_category_prices(params: { action: 'preview' | 'apply'; category: string; percentage: number }) {
-  const res = await fetch(`${STRAPI_URL.replace('1337', '3000')}/api/admin/bulk-price`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      password: ADMIN_PASSWORD,
-      action: params.action,
-      category: params.category,
-      percentage: params.percentage,
-    }),
-  });
-  return res.json();
+  if (params.action !== 'preview' && params.action !== 'apply') return { error: 'Invalid action' };
+  return (await runBulkPrice(params)).body;
 }
 
 function get_price_history(product_name?: string) {
@@ -232,7 +191,7 @@ export async function POST(req: NextRequest) {
     const { messages, password } = await req.json();
 
     // Simple password gate
-    if (password !== ADMIN_PASSWORD) {
+    if (!isAdmin(password)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { useBasket } from './BasketContext';
-import { formatPrice } from '@/lib/api';
+import { formatPrice } from '@/lib/format';
 import { useParams, useRouter } from 'next/navigation';
 
 interface Props {

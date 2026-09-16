@@ -2,7 +2,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Suspense } from 'react';
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { getProducts } from '@/lib/api';
+import { getProducts, type ProductQuery } from '@/lib/api';
 import ProductCard from '@/components/product/ProductCard';
 import SearchAndFilter from '@/components/retail/SearchAndFilter';
 import { WHOLESALE_BUSINESS_TYPES } from '@/lib/utils';
@@ -61,22 +61,22 @@ export default async function WholesaleBusinessPage({
   const label = LABELS[business] ?? { fa: business, en: business };
 
   // Build filters — always lock to this business type
-  const filters: Record<string, string> = {
-    'filters[business_types][$containsi]': business,
+  const filters: ProductQuery = {
+    businessType: business,
+    brand: searchParams.brand,
+    nameFa: searchParams.q,
   };
-  if (searchParams.brand) filters['filters[brand][$containsi]'] = searchParams.brand;
-  if (searchParams.q)     filters['filters[name_fa][$containsi]'] = searchParams.q;
   if (searchParams.price) {
     const [min, max] = searchParams.price.split('-');
-    if (min) filters['filters[wholesale_price][$gte]'] = min;
-    if (max) filters['filters[wholesale_price][$lte]'] = max;
+    if (min) filters.wholesaleMin = Number(min);
+    if (max) filters.wholesaleMax = Number(max);
   }
 
   let products = { data: [] as Awaited<ReturnType<typeof getProducts>>['data'] };
   try {
-    products = await getProducts(filters, 1, 500);
+    products = await getProducts(filters, 1, 10000);
   } catch {
-    // Strapi not connected
+    // database unavailable
   }
 
   return (

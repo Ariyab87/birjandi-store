@@ -42,19 +42,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     const { data } = await getArticles(1, 100);
     articleUrls = data.map(a => entry(`blog/${a.slug}`, 0.7, 'monthly', new Date(a.updatedAt)));
-  } catch { /* Strapi not available */ }
+  } catch { /* database not available */ }
 
   let productUrls: MetadataRoute.Sitemap = [];
   try {
-    // Strapi caps pageSize at 100 — paginate to include every product
-    for (let page = 1; ; page++) {
-      const { data, meta } = await getProducts({}, page, 100);
-      productUrls.push(...data.map(p =>
-        entry(`retail/${p.category}/${p.documentId}`, 0.8, 'weekly', p.updatedAt ? new Date(p.updatedAt) : new Date()),
-      ));
-      if (page >= meta.pagination.pageCount) break;
-    }
-  } catch { /* Strapi not available at build time */ }
+    const { data } = await getProducts({}, 1, 100000);
+    productUrls = data.map(p =>
+      entry(`retail/${p.category}/${p.documentId}`, 0.8, 'weekly', new Date(p.updatedAt)),
+    );
+  } catch { /* database not available at build time */ }
 
   return [...staticUrls, ...articleUrls, ...productUrls];
 }

@@ -60,7 +60,7 @@ export default async function BlogPage({ params: { locale } }: { params: { local
   let articles: Article[] = [];
   try {
     articles = (await getArticles()).data;
-  } catch { /* Strapi unavailable */ }
+  } catch { /* database unavailable */ }
 
   const [featured, ...rest] = articles;
 

@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { sql, isAdmin } from '@/lib/db';
+import { updateProduct } from '@/lib/adminProducts';
 
 export const maxDuration = 60;
 
-const ADMIN_PASSWORD = process.env.ADMIN_CHAT_PASSWORD || 'bshop-admin-2024';
-const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337';
-const STRAPI_TOKEN = process.env.STRAPI_API_TOKEN || '';
 const GROQ_API_KEY = process.env.GROQ_API_KEY || '';
 
 const CAT_FA: Record<string, string> = {
@@ -55,18 +54,11 @@ function missingFields(p: ProductRow): string[] {
 }
 
 async function fetchAllProducts(): Promise<ProductRow[]> {
-  const out: ProductRow[] = [];
-  for (let page = 1; ; page++) {
-    const res = await fetch(
-      `${STRAPI_URL}/api/products?pagination[page]=${page}&pagination[pageSize]=100&sort=createdAt:asc`,
-      { cache: 'no-store' },
-    );
-    if (!res.ok) throw new Error(`Strapi list ${res.status}`);
-    const json = await res.json();
-    out.push(...json.data);
-    if (page >= json.meta.pagination.pageCount) break;
-  }
-  return out;
+  const rows = await sql`
+    SELECT document_id AS "documentId", name_fa, name_en, brand, category,
+           description_fa, description_en, seo_title, seo_description
+    FROM products ORDER BY created_at ASC`;
+  return rows as unknown as ProductRow[];
 }
 
 async function generateCopy(p: ProductRow, existingShortDesc?: string) {
@@ -106,7 +98,7 @@ async function generateCopy(p: ProductRow, existingShortDesc?: string) {
 // GET /api/admin/fill-seo?password=… — report how many products still need content
 export async function GET(req: NextRequest) {
   const pw = req.nextUrl.searchParams.get('password');
-  if (pw !== ADMIN_PASSWORD) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!isAdmin(pw)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   const products = await fetchAllProducts();
   const pending = products.filter(p => missingFields(p).length > 0);
   return NextResponse.json({ total: products.length, remaining: pending.length });
@@ -118,10 +110,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const { password, batchSize = 5, items, expandShort } = await req.json();
-    if (password !== ADMIN_PASSWORD) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    if (!STRAPI_TOKEN) {
-      return NextResponse.json({ error: 'STRAPI_API_TOKEN not set' }, { status: 500 });
-    }
+    if (!isAdmin(password)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     if (Array.isArray(items)) {
       const products = await fetchAllProducts();
@@ -137,12 +126,7 @@ export async function POST(req: NextRequest) {
           continue;
         }
         try {
-          const put = await fetch(`${STRAPI_URL}/api/products/${p.documentId}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${STRAPI_TOKEN}` },
-            body: JSON.stringify({ data: patch }),
-          });
-          if (!put.ok) throw new Error(`Strapi PUT ${put.status}: ${(await put.text()).slice(0, 200)}`);
+          if (!(await updateProduct(p.documentId, patch))) throw new Error('update failed');
           results.push({ documentId: p.documentId, name: p.name_fa, wrote: Object.keys(patch) });
         } catch (err) {
           results.push({ documentId: p.documentId, name: p.name_fa, error: String(err) });
@@ -170,12 +154,7 @@ export async function POST(req: NextRequest) {
         const gen = await generateCopy(p, expandingDesc ? p.description_fa! : undefined);
         const patch: Record<string, string> = {};
         for (const k of fields) if (gen[k]) patch[k] = gen[k];
-        const put = await fetch(`${STRAPI_URL}/api/products/${p.documentId}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${STRAPI_TOKEN}` },
-          body: JSON.stringify({ data: patch }),
-        });
-        if (!put.ok) throw new Error(`Strapi PUT ${put.status}: ${(await put.text()).slice(0, 300)}`);
+        if (!(await updateProduct(p.documentId, patch))) throw new Error('update failed');
         results.push({ documentId: p.documentId, name: p.name_fa, wrote: Object.keys(patch) });
       } catch (err) {
         results.push({ documentId: p.documentId, name: p.name_fa, error: String(err) });

@@ -2,7 +2,7 @@ import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Suspense } from 'react';
-import { getProducts } from '@/lib/api';
+import { getProducts, type ProductQuery } from '@/lib/api';
 import ProductCard from '@/components/product/ProductCard';
 import SearchAndFilter from '@/components/retail/SearchAndFilter';
 import PromoStrip from '@/components/retail/PromoStrip';
@@ -25,22 +25,17 @@ export default async function RetailCatalog({ locale, category, searchParams }: 
 
   const currentPage = Math.max(1, parseInt(searchParams.page || '1', 10));
 
-  const filters: Record<string, string> = {};
-  if (category) filters['filters[category][$eq]'] = category;
-  if (searchParams.brand) filters['filters[brand][$containsi]'] = searchParams.brand;
-  if (searchParams.q) {
-    filters['filters[$or][0][name_fa][$containsi]'] = searchParams.q;
-    filters['filters[$or][1][name_en][$containsi]'] = searchParams.q;
-    filters['filters[$or][2][brand][$containsi]']   = searchParams.q;
-  }
+  const filters: ProductQuery = {
+    category,
+    brand: searchParams.brand,
+    q: searchParams.q,
+    sort: searchParams.sort,
+  };
   if (searchParams.price) {
     const [min, max] = searchParams.price.split('-');
-    if (min) filters['filters[retail_price][$gte]'] = min;
-    if (max) filters['filters[retail_price][$lte]'] = max;
-    filters['filters[price_on_request][$eq]'] = 'false';
-  }
-  if (searchParams.sort) {
-    filters['sort'] = searchParams.sort;
+    if (min) filters.retailMin = Number(min);
+    if (max) filters.retailMax = Number(max);
+    filters.pricedOnly = true;
   }
 
   let products = {
@@ -50,13 +45,12 @@ export default async function RetailCatalog({ locale, category, searchParams }: 
   let allBrands: string[] = [];
   try {
     products = await getProducts(filters, currentPage, PAGE_SIZE);
-    const scopeFilter: Record<string, string> = category ? { 'filters[category][$eq]': category } : {};
-    const allProducts = await getProducts(scopeFilter, 1, 500);
+    const allProducts = await getProducts({ category }, 1, 10000);
     allBrands = Array.from(new Set(
       allProducts.data.map(p => p.brand).filter(Boolean)
     )).sort((a, b) => a.localeCompare(b, 'fa'));
   } catch {
-    // Strapi not running
+    // database unavailable
   }
 
   const fa = locale === 'fa';

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useBasket } from '../basket/BasketContext';
-import { formatPrice } from '@/lib/api';
+import { formatPrice } from '@/lib/format';
 
 interface Props {
   locale: string;

@@ -1,40 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { sql, newDocumentId } from '@/lib/db';
+import { getApprovedReviews } from '@/lib/api';
 
-const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337';
-const STRAPI_TOKEN = process.env.STRAPI_API_TOKEN || '';
-
-function authHeaders() {
-  return {
-    'Content-Type': 'application/json',
-    ...(STRAPI_TOKEN ? { Authorization: `Bearer ${STRAPI_TOKEN}` } : {}),
-  };
-}
-
-// Reviews aren't publicly readable/writable in Strapi (no permissions granted) —
-// everything goes through here so unapproved content never leaks and we control spam.
+// Reviews are only exposed through here so unapproved content never leaks and we control spam.
 
 // GET /api/reviews?product=documentId — approved reviews only, newest first
 export async function GET(req: NextRequest) {
   const productId = req.nextUrl.searchParams.get('product');
   if (!productId) return NextResponse.json({ error: 'product required' }, { status: 400 });
-
-  try {
-    const params = new URLSearchParams({
-      'filters[product_document_id][$eq]': productId,
-      'filters[approved][$eq]': 'true',
-      'sort[0]': 'createdAt:desc',
-      'pagination[limit]': '100',
-    });
-    const res = await fetch(`${STRAPI_URL}/api/reviews?${params}`, { headers: authHeaders(), next: { revalidate: 60 } });
-    const json = await res.json();
-    const reviews = (json.data || []) as Array<{ name: string; rating: number; comment: string; createdAt: string }>;
-    const count = reviews.length;
-    const average = count ? reviews.reduce((s, r) => s + r.rating, 0) / count : 0;
-    return NextResponse.json({ reviews, average, count });
-  } catch (err) {
-    console.error('Load reviews error:', err);
-    return NextResponse.json({ reviews: [], average: 0, count: 0 });
-  }
+  return NextResponse.json(await getApprovedReviews(productId));
 }
 
 // Abuse guard: a real customer leaves at most one or two reviews a day.
@@ -64,24 +38,16 @@ export async function POST(req: NextRequest) {
     if (!productDocumentId || !name?.trim() || !comment?.trim() || !Number.isInteger(r) || r < 1 || r > 5) {
       return NextResponse.json({ error: 'اطلاعات نظر ناقص یا نامعتبر است' }, { status: 400 });
     }
-    if (!STRAPI_TOKEN) return NextResponse.json({ error: 'STRAPI_API_TOKEN not set' }, { status: 500 });
 
-    const res = await fetch(`${STRAPI_URL}/api/reviews`, {
-      method: 'POST',
-      headers: authHeaders(),
-      body: JSON.stringify({
-        data: {
-          product_document_id: productDocumentId,
-          name: name.trim().slice(0, 80),
-          rating: r,
-          comment: comment.trim().slice(0, 1000),
-          approved: false,
-        },
-      }),
-    });
-    if (!res.ok) {
-      return NextResponse.json({ error: `Strapi ${res.status}: ${(await res.text()).slice(0, 200)}` }, { status: 502 });
-    }
+    await sql`
+      INSERT INTO reviews ${sql({
+        document_id: newDocumentId(),
+        product_document_id: String(productDocumentId).slice(0, 64),
+        name: name.trim().slice(0, 80),
+        rating: r,
+        comment: comment.trim().slice(0, 1000),
+        approved: false,
+      })}`;
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error('Submit review error:', err);

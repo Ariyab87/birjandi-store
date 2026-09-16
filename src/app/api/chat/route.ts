@@ -23,7 +23,7 @@ function formatPrice(n: number): string {
 
 async function buildProductCatalog(): Promise<string> {
   try {
-    const { data } = await getProducts({}, 1, 500);
+    const { data } = await getProducts({}, 1, 10000);
     if (!data.length) return 'در حال حاضر محصولی در انبار ثبت نشده است.';
 
     const lines = data.map(p => {

@@ -52,7 +52,7 @@ export default async function ArticlePage({
   try {
     article = await getArticleBySlug(slug);
     others = (await getArticles(1, 4)).data.filter(a => a.slug !== slug).slice(0, 3);
-  } catch { /* Strapi unavailable */ }
+  } catch { /* database unavailable */ }
 
   if (!article) notFound();
 

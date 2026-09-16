@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sendOrderEmails } from '@/lib/email';
 import { generateOrderId } from '@/lib/utils';
+import { sql, newDocumentId } from '@/lib/db';
 
-const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337';
-const STRAPI_TOKEN = process.env.STRAPI_API_TOKEN || '';
-
-// Persist the order to Strapi for later accounting review. Never blocks/fails the order.
-async function saveOrderToStrapi(order: {
+// Persist the order for later accounting review. Never blocks/fails the order.
+async function saveOrder(order: {
   type: string;
   customer: { name: string; phone: string; address: string; businessName?: string; email?: string; notes?: string };
   items: unknown[];
@@ -14,38 +12,28 @@ async function saveOrderToStrapi(order: {
   orderId: string;
 }) {
   try {
-    const res = await fetch(`${STRAPI_URL}/api/orders`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(STRAPI_TOKEN ? { Authorization: `Bearer ${STRAPI_TOKEN}` } : {}),
-      },
-      body: JSON.stringify({
-        data: {
-          order_id: order.orderId,
-          type: order.type,
-          customer_name: order.customer.name,
-          customer_phone: order.customer.phone,
-          customer_address: order.customer.address,
-          customer_email: order.customer.email || null,
-          business_name: order.customer.businessName || null,
-          notes: order.customer.notes || null,
-          items: order.items,
-          total: order.total,
-          status: 'new',
-        },
-      }),
-    });
-    if (!res.ok) {
-      console.error('Strapi order save failed:', res.status, await res.text());
-    }
+    await sql`
+      INSERT INTO orders ${sql({
+        document_id: newDocumentId(),
+        order_id: order.orderId,
+        type: String(order.type),
+        customer_name: order.customer.name,
+        customer_phone: order.customer.phone,
+        customer_address: order.customer.address,
+        customer_email: order.customer.email || null,
+        business_name: order.customer.businessName || null,
+        notes: order.customer.notes || null,
+        items: sql.json(order.items as any),
+        total: Number(order.total) || 0,
+        status: 'new',
+      })}`;
   } catch (err) {
-    console.error('Strapi order save error:', err);
+    console.error('Order save error:', err);
   }
 }
 
 // Abuse guard: every order sends an email (Resend quota + sender reputation)
-// and writes a Strapi row, so an unthrottled endpoint is a spam amplifier.
+// and writes a database row, so an unthrottled endpoint is a spam amplifier.
 // A real customer places at most a couple of orders a day.
 const RATE = { perMinute: 3, perDay: 15 };
 const hits = new Map<string, number[]>();
@@ -100,8 +88,8 @@ export async function POST(req: NextRequest) {
 
     const orderId = generateOrderId();
 
-    // Save to Strapi first (for accounting) so the record survives even if email fails.
-    await saveOrderToStrapi({ type, customer, items, total, orderId });
+    // Save first (for accounting) so the record survives even if email fails.
+    await saveOrder({ type, customer, items, total, orderId });
 
     await sendOrderEmails({ type, customer, items, total, orderId });
 

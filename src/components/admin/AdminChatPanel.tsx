@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import ProductsManager from './ProductsManager';
+import ArticlesManager from './ArticlesManager';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -48,7 +50,7 @@ export default function AdminChatPanel() {
   const [password, setPassword] = useState('');
   const [authed, setAuthed] = useState(false);
   const [authError, setAuthError] = useState('');
-  const [activeTab, setActiveTab] = useState<'chat' | 'prices' | 'seo' | 'orders' | 'reviews'>('chat');
+  const [activeTab, setActiveTab] = useState<'products' | 'articles' | 'chat' | 'prices' | 'seo' | 'orders' | 'reviews'>('products');
 
   // Orders state
   const [orders, setOrders] = useState<any[]>([]);
@@ -94,14 +96,15 @@ export default function AdminChatPanel() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, chatLoading]);
 
-  function handleLogin(e: React.FormEvent) {
+  async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
-    if (password.trim()) {
-      setAuthed(true);
-      setAuthError('');
-    } else {
-      setAuthError('رمز عبور را وارد کنید');
-    }
+    if (!password.trim()) { setAuthError('رمز عبور را وارد کنید'); return; }
+    try {
+      const res = await fetch('/api/admin/bulk-price?password=' + encodeURIComponent(password), { cache: 'no-store' });
+      if (res.status === 401) { setAuthError('رمز عبور نادرست است'); return; }
+    } catch { /* network hiccup — let the tabs report errors */ }
+    setAuthed(true);
+    setAuthError('');
   }
 
   async function send() {
@@ -170,16 +173,11 @@ export default function AdminChatPanel() {
   async function loadSeoReport() {
     setSeoLoading(true);
     try {
-      const base = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337';
-      const all: any[] = [];
-      for (let page = 1; ; page++) {
-        const res = await fetch(`${base}/api/products?pagination[page]=${page}&pagination[pageSize]=100`);
-        const data = await res.json();
-        all.push(...(data.data || []));
-        if (page >= (data.meta?.pagination?.pageCount || 1)) break;
-      }
-      setSeoProducts(all);
-    } catch { setSeoMsg('خطا در اتصال به Strapi'); }
+      const res = await fetch('/api/admin/products', { headers: { 'x-admin-password': password }, cache: 'no-store' });
+      const data = await res.json();
+      if (res.status === 401) { setAuthed(false); setAuthError('رمز عبور نادرست است'); return; }
+      setSeoProducts((data.products || []).filter((p: any) => p.published));
+    } catch { setSeoMsg('خطا در اتصال به پایگاه داده'); }
     finally { setSeoLoading(false); }
   }
 
@@ -372,7 +370,7 @@ export default function AdminChatPanel() {
             <p className="text-white font-bold text-sm">کالالند۲۴ — پنل مدیریت</p>
             <p className="text-gray-400 text-xs flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block" />
-              متصل به Strapi
+              متصل به پایگاه داده
             </p>
           </div>
         </div>
@@ -385,7 +383,23 @@ export default function AdminChatPanel() {
       </div>
 
       {/* Tabs */}
-      <div className="bg-gray-900/50 border-b border-gray-800 px-6 flex gap-1">
+      <div className="bg-gray-900/50 border-b border-gray-800 px-2 sm:px-6 flex gap-1 overflow-x-auto whitespace-nowrap">
+        <button
+          onClick={() => setActiveTab('products')}
+          className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+            activeTab === 'products' ? 'border-gold-500 text-gold-400' : 'border-transparent text-gray-400 hover:text-white'
+          }`}
+        >
+          📦 محصولات
+        </button>
+        <button
+          onClick={() => setActiveTab('articles')}
+          className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+            activeTab === 'articles' ? 'border-gold-500 text-gold-400' : 'border-transparent text-gray-400 hover:text-white'
+          }`}
+        >
+          📝 مقاله‌ها
+        </button>
         <button
           onClick={() => setActiveTab('chat')}
           className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
@@ -429,6 +443,12 @@ export default function AdminChatPanel() {
       </div>
 
       {/* ── CHAT TAB ── */}
+      {activeTab === 'products' && (
+        <ProductsManager password={password} categories={CATEGORIES.filter(c => c.key !== 'all')} />
+      )}
+
+      {activeTab === 'articles' && <ArticlesManager password={password} />}
+
       {activeTab === 'chat' && (
         <>
           <div className="px-6 py-3 bg-gray-900/30 border-b border-gray-800 flex gap-2 flex-wrap">

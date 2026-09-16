@@ -61,7 +61,7 @@ export default async function HomePage({
   try {
     featured = await getFeaturedProducts();
   } catch {
-    // Strapi not running — empty state
+    // database unavailable — empty state
   }
 
   const websiteJsonLd = {
